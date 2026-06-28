@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ComeCome - Zonas de envío</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --amarillo: #FCE029;
+      --amarillo-hover: #e6c800;
+      --negro: #000;
+      --blanco: #fff;
+    }
+    body { background-color: var(--negro); color: var(--blanco); font-family: 'Segoe UI', sans-serif; }
+    .navbar-admin { background-color: #111; border-bottom: 2px solid var(--amarillo); }
+    .navbar-brand { color: var(--amarillo) !important; font-weight: bold; }
+    .btn-amarillo {
+      background-color: var(--amarillo); color: var(--negro);
+      border: none; font-weight: bold; padding: 0.3rem 0.8rem; font-size: 0.85rem;
+    }
+    .btn-amarillo:hover { background-color: var(--amarillo-hover); }
+    .btn-outline-amarillo {
+      color: var(--amarillo); border: 1px solid var(--amarillo);
+      background: transparent; padding: 0.3rem 0.8rem; font-size: 0.85rem;
+    }
+    .btn-outline-amarillo:hover { background-color: var(--amarillo); color: var(--negro); }
+
+    .zona-item {
+      background-color: #111;
+      border: 2px solid var(--amarillo);
+      border-radius: 0.5rem;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .zona-info { display: flex; align-items: center; gap: 1rem; flex-grow: 1; }
+    .zona-nombre { font-weight: bold; text-transform: uppercase; color: var(--amarillo); }
+    .zona-precio { color: var(--blanco); font-size: 0.9rem; }
+    .zona-estado { font-size: 0.85rem; }
+    .zona-acciones { display: flex; gap: 0.3rem; }
+
+    .modal-content { background-color: #111; border: 2px solid var(--amarillo); color: var(--blanco); }
+    .modal-header, .modal-footer { border-color: var(--amarillo); }
+    .form-control {
+      background-color: #000; color: var(--blanco); border: 1px solid var(--amarillo);
+    }
+    .form-control:focus { border-color: var(--amarillo); box-shadow: 0 0 0 0.2rem rgba(252, 224, 41, 0.25); }
+    .form-check-input:checked { background-color: var(--amarillo); border-color: var(--amarillo); }
+
+    .mapa-preview { max-width: 200px; max-height: 200px; border: 2px solid var(--amarillo); border-radius: 0.5rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark navbar-admin">
+    <div class="container">
+      <span class="navbar-brand"><i class="bi bi-circle-fill" style="color: var(--amarillo);"></i> ComeCome Admin</span>
+      <div>
+        <a href="index.html" class="btn btn-outline-amarillo btn-sm me-2"><i class="bi bi-house"></i> Menú</a>
+        <button class="btn btn-outline-amarillo btn-sm" onclick="cerrarSesion()"><i class="bi bi-box-arrow-right"></i> Salir</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-4">
+    <h2 class="text-warning mb-3"><i class="bi bi-map-fill"></i> Zonas de envío</h2>
+
+    <!-- Subida del mapa -->
+    <div class="mb-4 p-3" style="background-color:#111; border:2px solid var(--amarillo); border-radius:0.5rem;">
+      <h5 class="text-warning"><i class="bi bi-image"></i> Mapa de zonas</h5>
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <img id="mapa-img" src="" alt="Mapa" class="mapa-preview d-none">
+        <div>
+          <input type="file" id="mapa-file" accept="image/*" class="form-control form-control-sm mb-2">
+          <button class="btn btn-amarillo btn-sm" onclick="subirMapa()"><i class="bi bi-cloud-upload"></i> Subir mapa</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de zonas -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="text-warning mb-0">Lista de zonas</h5>
+      <button class="btn btn-amarillo btn-sm" onclick="abrirModalNuevo()">
+        <i class="bi bi-plus-lg"></i> Nueva
+      </button>
+    </div>
+    <div id="zonas-container"></div>
+  </main>
+
+  <!-- Modal crear/editar zona -->
+  <div class="modal fade" id="zonaModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal-titulo">Nueva zona</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="zona-form">
+            <input type="hidden" id="zona-id">
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-control form-control-sm" id="zona-nombre" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Precio de envío (CUP)</label>
+              <input type="number" step="0.01" min="0" class="form-control form-control-sm" id="zona-precio" required>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="zona-activo" checked>
+              <label class="form-check-label" for="zona-activo">Activo</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-amarillo btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-amarillo btn-sm" id="btn-guardar">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="comun.js"></script>
+  <script src="zonas.js"></script>
+</body>
+</html>
