@@ -546,11 +546,11 @@
         } else {
           // Sin horas o horas iguales → cerrado todo el día
           horarioAbierto = false;
-          textoHorario = 'Cerrado hoy.';
+          textoHorario = 'Cerrado.';
         }
       } else {
         horarioAbierto = false;
-        textoHorario = 'Cerrado hoy.';
+        textoHorario = 'Cerrado.';
       }
 
       document.getElementById('horario-aviso').classList.toggle('d-none', horarioAbierto);
