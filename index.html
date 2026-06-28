@@ -147,9 +147,9 @@
     <div class="container" id="categorias-container"></div>
   </div>
 
-  <!-- Aviso de horario -->
+  <!-- Aviso de horario (dinámico) -->
   <div id="horario-aviso" class="alert alert-warning text-center mb-0 d-none" role="alert">
-    <i class="bi bi-clock"></i> Fuera de horario. Los pedidos en línea están disponibles de <span id="horario-texto">12:00 a 23:00</span>.
+    <i class="bi bi-clock"></i> Fuera de horario. <span id="horario-texto"></span>
   </div>
 
   <!-- Contenedor de toasts -->
@@ -285,7 +285,7 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ⚠️ CAMBIA ESTO POR TU TOPIC REAL DE NTFY
-    const NTFY_TOPIC = 'comecome_8f3js9f83jf93jf';
+    const NTFY_TOPIC = 'TU_TOPIC_SECRETO';
 
     let todasCategorias = [];
     let todosProductos = [];
@@ -513,6 +513,7 @@
       container.innerHTML = html;
     }
 
+    // ─── VERIFICAR HORARIO Y ACTUALIZAR TEXTO ───
     async function verificarHorario() {
       const ahora = new Date();
       const diaSemana = ahora.getDay();
@@ -524,23 +525,36 @@
         .eq('dia_semana', diaSemana)
         .single();
 
+      let textoHorario = 'Cerrado hoy.';
+
       if (data) {
         if (data.abierto) {
+          // Forzado abierto → siempre abierto
           horarioAbierto = true;
-        } else if (data.hora_apertura && data.hora_cierre) {
+          textoHorario = ''; // no se mostrará porque la alerta está oculta
+        } else if (data.hora_apertura && data.hora_cierre && data.hora_apertura !== data.hora_cierre) {
           const [hA, mA] = data.hora_apertura.split(':').map(Number);
           const [hC, mC] = data.hora_cierre.split(':').map(Number);
           const apertura = hA + mA / 60;
           const cierre = hC + mC / 60;
           horarioAbierto = horaActual >= apertura && horaActual < cierre;
+
+          if (!horarioAbierto) {
+            // Mostrar el horario real si está cerrado
+            textoHorario = `Los pedidos en línea están disponibles de ${data.hora_apertura.slice(0,5)} a ${data.hora_cierre.slice(0,5)}.`;
+          }
         } else {
+          // Sin horas o horas iguales → cerrado todo el día
           horarioAbierto = false;
+          textoHorario = 'Cerrado hoy.';
         }
       } else {
         horarioAbierto = false;
+        textoHorario = 'Cerrado hoy.';
       }
 
       document.getElementById('horario-aviso').classList.toggle('d-none', horarioAbierto);
+      document.getElementById('horario-texto').textContent = textoHorario;
     }
 
     function agregarAlCarrito(idProducto) {
