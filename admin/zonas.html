@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ComeCome - Rangos de envío</title>
+  <title>ComeCome - Repartos</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <style>
@@ -27,7 +27,7 @@
     }
     .btn-outline-amarillo:hover { background-color: var(--amarillo); color: var(--negro); }
 
-    .rango-item {
+    .reparto-item {
       background-color: #111;
       border: 2px solid var(--amarillo);
       border-radius: 0.5rem;
@@ -39,13 +39,10 @@
       flex-wrap: wrap;
       gap: 0.5rem;
     }
-    .rango-info { display: flex; align-items: center; gap: 1rem; flex-grow: 1; flex-wrap: wrap; }
-    .rango-anillo {
-      font-weight: bold; font-size: 1.2rem; color: var(--amarillo);
-      display: flex; align-items: center; gap: 0.3rem;
-    }
-    .rango-detalles { font-size: 0.9rem; }
-    .rango-acciones { display: flex; gap: 0.3rem; }
+    .reparto-info { display: flex; align-items: center; gap: 1rem; flex-grow: 1; flex-wrap: wrap; }
+    .reparto-nombre { font-weight: bold; font-size: 1.1rem; color: var(--amarillo); text-transform: uppercase; }
+    .reparto-detalles { font-size: 0.9rem; color: var(--blanco); }
+    .reparto-acciones { display: flex; gap: 0.3rem; }
 
     .modal-content { background-color: #111; border: 2px solid var(--amarillo); color: var(--blanco); }
     .modal-header, .modal-footer { border-color: var(--amarillo); }
@@ -69,48 +66,40 @@
 
   <main class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="text-warning"><i class="bi bi-truck"></i> Rangos de envío</h2>
+      <h2 class="text-warning"><i class="bi bi-truck"></i> Repartos</h2>
       <button class="btn btn-amarillo btn-sm" onclick="abrirModalNuevo()">
         <i class="bi bi-plus-lg"></i> Nuevo
       </button>
     </div>
-    <div id="rangos-container"></div>
+    <div id="repartos-container"></div>
   </main>
 
-  <!-- Modal crear/editar rango -->
-  <div class="modal fade" id="rangoModal" tabindex="-1">
+  <!-- Modal crear/editar reparto -->
+  <div class="modal fade" id="repartoModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modal-titulo">Nuevo rango</h5>
+          <h5 class="modal-title" id="modal-titulo">Nuevo reparto</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="rango-form">
-            <input type="hidden" id="rango-id">
+          <form id="reparto-form">
+            <input type="hidden" id="reparto-id">
             <div class="mb-3">
-              <label class="form-label">Anillo (número)</label>
-              <input type="number" min="1" class="form-control form-control-sm" id="rango-anillo" required>
+              <label class="form-label">Nombre del reparto</label>
+              <input type="text" class="form-control form-control-sm" id="reparto-nombre" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Clasificación (ej: Muy cerca)</label>
-              <input type="text" class="form-control form-control-sm" id="rango-clasificacion" required>
+              <label class="form-label">Distancia aproximada</label>
+              <input type="text" class="form-control form-control-sm" id="reparto-distancia" placeholder="Ej: 0–2 km" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Rango km (ej: 0–2 km)</label>
-              <input type="text" class="form-control form-control-sm" id="rango-km" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Tarifa (CUP)</label>
-              <input type="number" step="0.01" min="0" class="form-control form-control-sm" id="rango-tarifa" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Destinos incluidos</label>
-              <textarea class="form-control form-control-sm" id="rango-destinos" rows="3" required></textarea>
+              <label class="form-label">Precio de envío (CUP)</label>
+              <input type="number" step="0.01" min="0" class="form-control form-control-sm" id="reparto-precio" required>
             </div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="rango-activo" checked>
-              <label class="form-check-label" for="rango-activo">Activo</label>
+              <input class="form-check-input" type="checkbox" id="reparto-activo" checked>
+              <label class="form-check-label" for="reparto-activo">Activo</label>
             </div>
           </form>
         </div>
