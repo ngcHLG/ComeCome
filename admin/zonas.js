@@ -1,174 +1,133 @@
-// zonas.js - CRUD de zonas y mapa de envío
-
-let zonaEditando = null;
+let rangoEditando = null;
 let modalInstancia = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  modalInstancia = new bootstrap.Modal(document.getElementById('zonaModal'));
-  document.getElementById('btn-guardar').addEventListener('click', guardarZona);
-
-  // Quitar foco al cerrar el modal para evitar el warning aria-hidden
-  document.getElementById('zonaModal').addEventListener('hidden.bs.modal', () => {
+  modalInstancia = new bootstrap.Modal(document.getElementById('rangoModal'));
+  document.getElementById('btn-guardar').addEventListener('click', guardarRango);
+  document.getElementById('rangoModal').addEventListener('hidden.bs.modal', () => {
     document.activeElement?.blur();
   });
-
-  cargarZonas();
-  cargarMapa();
+  cargarRangos();
 });
 
-async function cargarZonas() {
+async function cargarRangos() {
   const { data, error } = await window.comecomeSupabase
-    .from('zonas')
+    .from('rangos_envio')
     .select('*')
-    .order('nombre');
+    .order('anillo');
 
-  const container = document.getElementById('zonas-container');
+  const container = document.getElementById('rangos-container');
   if (error || !data || data.length === 0) {
-    container.innerHTML = '<p class="text-muted text-center">No hay zonas configuradas.</p>';
+    container.innerHTML = '<p class="text-muted text-center">No hay rangos configurados.</p>';
     return;
   }
 
-  container.innerHTML = data.map(z => `
-    <div class="zona-item">
-      <div class="zona-info">
-        <span class="zona-nombre">${z.nombre}</span>
-        <span class="zona-precio">+${parseFloat(z.precio_envio).toFixed(2)} CUP</span>
-        <span class="zona-estado ${z.activo ? 'text-success' : 'text-danger'}">${z.activo ? 'Activo' : 'Inactivo'}</span>
+  container.innerHTML = data.map(r => `
+    <div class="rango-item">
+      <div class="rango-info">
+        <span class="rango-anillo">
+          <i class="bi bi-circle-fill" style="color: ${r.anillo === 1 ? '#198754' : r.anillo === 2 ? '#ffc107' : r.anillo === 3 ? '#fd7e14' : '#dc3545'}"></i>
+          Anillo ${r.anillo} — ${r.clasificacion}
+        </span>
+        <span class="rango-detalles">${r.rango_km} — ${parseFloat(r.tarifa).toFixed(2)} CUP</span>
+        <span class="rango-detalles text-muted small">${r.destinos}</span>
+        <span class="${r.activo ? 'text-success' : 'text-danger'}">${r.activo ? 'Activo' : 'Inactivo'}</span>
       </div>
-      <div class="zona-acciones">
-        <button class="btn btn-outline-amarillo btn-sm" onclick="abrirModalEditar('${z.id}')"><i class="bi bi-pencil"></i></button>
-        <button class="btn btn-outline-amarillo btn-sm" onclick="toggleZona('${z.id}')"><i class="bi ${z.activo ? 'bi-eye-slash' : 'bi-eye'}"></i></button>
-        <button class="btn btn-outline-amarillo btn-sm" onclick="eliminarZona('${z.id}')"><i class="bi bi-trash"></i></button>
+      <div class="rango-acciones">
+        <button class="btn btn-outline-amarillo btn-sm" onclick="abrirModalEditar('${r.id}')"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-outline-amarillo btn-sm" onclick="toggleRango('${r.id}')"><i class="bi ${r.activo ? 'bi-eye-slash' : 'bi-eye'}"></i></button>
+        <button class="btn btn-outline-amarillo btn-sm" onclick="eliminarRango('${r.id}')"><i class="bi bi-trash"></i></button>
       </div>
     </div>
   `).join('');
 }
 
 function abrirModalNuevo() {
-  zonaEditando = null;
-  document.getElementById('modal-titulo').textContent = 'Nueva zona';
-  document.getElementById('zona-id').value = '';
-  document.getElementById('zona-nombre').value = '';
-  document.getElementById('zona-precio').value = '';
-  document.getElementById('zona-activo').checked = true;
+  rangoEditando = null;
+  document.getElementById('modal-titulo').textContent = 'Nuevo rango';
+  document.getElementById('rango-id').value = '';
+  document.getElementById('rango-anillo').value = '';
+  document.getElementById('rango-clasificacion').value = '';
+  document.getElementById('rango-km').value = '';
+  document.getElementById('rango-tarifa').value = '';
+  document.getElementById('rango-destinos').value = '';
+  document.getElementById('rango-activo').checked = true;
   modalInstancia.show();
 }
 
 async function abrirModalEditar(id) {
   const { data, error } = await window.comecomeSupabase
-    .from('zonas')
+    .from('rangos_envio')
     .select('*')
     .eq('id', id)
     .single();
   if (error || !data) return;
 
-  zonaEditando = data;
-  document.getElementById('modal-titulo').textContent = 'Editar zona';
-  document.getElementById('zona-id').value = data.id;
-  document.getElementById('zona-nombre').value = data.nombre;
-  document.getElementById('zona-precio').value = data.precio_envio;
-  document.getElementById('zona-activo').checked = data.activo;
+  rangoEditando = data;
+  document.getElementById('modal-titulo').textContent = 'Editar rango';
+  document.getElementById('rango-id').value = data.id;
+  document.getElementById('rango-anillo').value = data.anillo;
+  document.getElementById('rango-clasificacion').value = data.clasificacion;
+  document.getElementById('rango-km').value = data.rango_km;
+  document.getElementById('rango-tarifa').value = data.tarifa;
+  document.getElementById('rango-destinos').value = data.destinos;
+  document.getElementById('rango-activo').checked = data.activo;
   modalInstancia.show();
 }
 
-async function guardarZona() {
-  const id = document.getElementById('zona-id').value;
-  const nombre = document.getElementById('zona-nombre').value.trim();
-  const precio = parseFloat(document.getElementById('zona-precio').value);
-  const activo = document.getElementById('zona-activo').checked;
+async function guardarRango() {
+  const id = document.getElementById('rango-id').value;
+  const anillo = parseInt(document.getElementById('rango-anillo').value);
+  const clasificacion = document.getElementById('rango-clasificacion').value.trim();
+  const rango_km = document.getElementById('rango-km').value.trim();
+  const tarifa = parseFloat(document.getElementById('rango-tarifa').value);
+  const destinos = document.getElementById('rango-destinos').value.trim();
+  const activo = document.getElementById('rango-activo').checked;
 
-  if (!nombre || isNaN(precio) || precio < 0) {
+  if (!clasificacion || !rango_km || isNaN(tarifa) || !destinos || isNaN(anillo)) {
     mostrarMensaje('Completa todos los campos.');
     return;
   }
 
   if (id) {
     const { error } = await window.comecomeSupabase
-      .from('zonas')
-      .update({ nombre, precio_envio: precio, activo })
+      .from('rangos_envio')
+      .update({ anillo, clasificacion, rango_km, tarifa, destinos, activo })
       .eq('id', id);
     if (error) { mostrarMensaje('Error al actualizar'); return; }
   } else {
     const { error } = await window.comecomeSupabase
-      .from('zonas')
-      .insert([{ nombre, precio_envio: precio, activo }]);
+      .from('rangos_envio')
+      .insert([{ anillo, clasificacion, rango_km, tarifa, destinos, activo }]);
     if (error) { mostrarMensaje('Error al crear'); return; }
   }
 
   modalInstancia.hide();
-  cargarZonas();
+  cargarRangos();
 }
 
-async function toggleZona(id) {
-  const { data: zona } = await window.comecomeSupabase
-    .from('zonas')
+async function toggleRango(id) {
+  const { data: rango } = await window.comecomeSupabase
+    .from('rangos_envio')
     .select('activo')
     .eq('id', id)
     .single();
-  if (!zona) return;
+  if (!rango) return;
 
   await window.comecomeSupabase
-    .from('zonas')
-    .update({ activo: !zona.activo })
+    .from('rangos_envio')
+    .update({ activo: !rango.activo })
     .eq('id', id);
-  cargarZonas();
+  cargarRangos();
 }
 
-async function eliminarZona(id) {
+async function eliminarRango(id) {
   const { error } = await window.comecomeSupabase
-    .from('zonas')
+    .from('rangos_envio')
     .delete()
     .eq('id', id);
   if (error) { mostrarMensaje('Error al eliminar'); return; }
-  cargarZonas();
-}
-
-// --- Manejo del mapa (mejorado) ---
-async function cargarMapa() {
-  const { data } = window.comecomeSupabase
-    .storage
-    .from('mapa')
-    .getPublicUrl('mapa_zonas');
-  if (data && data.publicUrl) {
-    const img = document.getElementById('mapa-img');
-    // Agregamos un parámetro de tiempo para evitar caché del navegador
-    img.src = data.publicUrl + '?t=' + new Date().getTime();
-    img.classList.remove('d-none');
-  }
-}
-
-async function subirMapa() {
-  const archivo = document.getElementById('mapa-file').files[0];
-  if (!archivo) {
-    mostrarMensaje('Selecciona una imagen.');
-    return;
-  }
-
-  // Validar que sea imagen
-  if (!archivo.type.startsWith('image/')) {
-    mostrarMensaje('El archivo debe ser una imagen.');
-    return;
-  }
-
-  // Subir indicando el tipo de contenido y con el nombre fijo 'mapa_zonas'
-  const { error } = await window.comecomeSupabase
-    .storage
-    .from('mapa')
-    .upload('mapa_zonas', archivo, {
-      upsert: true,
-      contentType: archivo.type
-    });
-
-  if (error) {
-    mostrarMensaje('Error al subir: ' + error.message);
-    return;
-  }
-
-  cargarMapa();
-  mostrarMensaje('Mapa actualizado correctamente.');
-
-  // Limpiar el input
-  document.getElementById('mapa-file').value = '';
+  cargarRangos();
 }
 
 function mostrarMensaje(texto) {
@@ -178,4 +137,4 @@ function mostrarMensaje(texto) {
   aviso.textContent = texto;
   contenedor.prepend(aviso);
   setTimeout(() => aviso.remove(), 3000);
-}
+  }
