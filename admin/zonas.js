@@ -1,133 +1,123 @@
-let rangoEditando = null;
+let repartoEditando = null;
 let modalInstancia = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  modalInstancia = new bootstrap.Modal(document.getElementById('rangoModal'));
-  document.getElementById('btn-guardar').addEventListener('click', guardarRango);
-  document.getElementById('rangoModal').addEventListener('hidden.bs.modal', () => {
+  modalInstancia = new bootstrap.Modal(document.getElementById('repartoModal'));
+  document.getElementById('btn-guardar').addEventListener('click', guardarReparto);
+  document.getElementById('repartoModal').addEventListener('hidden.bs.modal', () => {
     document.activeElement?.blur();
   });
-  cargarRangos();
+  cargarRepartos();
 });
 
-async function cargarRangos() {
+async function cargarRepartos() {
   const { data, error } = await window.comecomeSupabase
-    .from('rangos_envio')
+    .from('repartos')
     .select('*')
-    .order('anillo');
+    .order('nombre');
 
-  const container = document.getElementById('rangos-container');
+  const container = document.getElementById('repartos-container');
   if (error || !data || data.length === 0) {
-    container.innerHTML = '<p class="text-muted text-center">No hay rangos configurados.</p>';
+    container.innerHTML = '<p class="text-muted text-center">No hay repartos configurados.</p>';
     return;
   }
 
   container.innerHTML = data.map(r => `
-    <div class="rango-item">
-      <div class="rango-info">
-        <span class="rango-anillo">
-          <i class="bi bi-circle-fill" style="color: ${r.anillo === 1 ? '#198754' : r.anillo === 2 ? '#ffc107' : r.anillo === 3 ? '#fd7e14' : '#dc3545'}"></i>
-          Anillo ${r.anillo} — ${r.clasificacion}
-        </span>
-        <span class="rango-detalles">${r.rango_km} — ${parseFloat(r.tarifa).toFixed(2)} CUP</span>
-        <span class="rango-detalles text-muted small">${r.destinos}</span>
+    <div class="reparto-item">
+      <div class="reparto-info">
+        <span class="reparto-nombre">${r.nombre}</span>
+        <span class="reparto-detalles">${r.distancia} — +${parseFloat(r.precio).toFixed(2)} CUP</span>
         <span class="${r.activo ? 'text-success' : 'text-danger'}">${r.activo ? 'Activo' : 'Inactivo'}</span>
       </div>
-      <div class="rango-acciones">
+      <div class="reparto-acciones">
         <button class="btn btn-outline-amarillo btn-sm" onclick="abrirModalEditar('${r.id}')"><i class="bi bi-pencil"></i></button>
-        <button class="btn btn-outline-amarillo btn-sm" onclick="toggleRango('${r.id}')"><i class="bi ${r.activo ? 'bi-eye-slash' : 'bi-eye'}"></i></button>
-        <button class="btn btn-outline-amarillo btn-sm" onclick="eliminarRango('${r.id}')"><i class="bi bi-trash"></i></button>
+        <button class="btn btn-outline-amarillo btn-sm" onclick="toggleReparto('${r.id}')"><i class="bi ${r.activo ? 'bi-eye-slash' : 'bi-eye'}"></i></button>
+        <button class="btn btn-outline-amarillo btn-sm" onclick="eliminarReparto('${r.id}')"><i class="bi bi-trash"></i></button>
       </div>
     </div>
   `).join('');
 }
 
 function abrirModalNuevo() {
-  rangoEditando = null;
-  document.getElementById('modal-titulo').textContent = 'Nuevo rango';
-  document.getElementById('rango-id').value = '';
-  document.getElementById('rango-anillo').value = '';
-  document.getElementById('rango-clasificacion').value = '';
-  document.getElementById('rango-km').value = '';
-  document.getElementById('rango-tarifa').value = '';
-  document.getElementById('rango-destinos').value = '';
-  document.getElementById('rango-activo').checked = true;
+  repartoEditando = null;
+  document.getElementById('modal-titulo').textContent = 'Nuevo reparto';
+  document.getElementById('reparto-id').value = '';
+  document.getElementById('reparto-nombre').value = '';
+  document.getElementById('reparto-distancia').value = '';
+  document.getElementById('reparto-precio').value = '';
+  document.getElementById('reparto-activo').checked = true;
   modalInstancia.show();
 }
 
 async function abrirModalEditar(id) {
   const { data, error } = await window.comecomeSupabase
-    .from('rangos_envio')
+    .from('repartos')
     .select('*')
     .eq('id', id)
     .single();
   if (error || !data) return;
 
-  rangoEditando = data;
-  document.getElementById('modal-titulo').textContent = 'Editar rango';
-  document.getElementById('rango-id').value = data.id;
-  document.getElementById('rango-anillo').value = data.anillo;
-  document.getElementById('rango-clasificacion').value = data.clasificacion;
-  document.getElementById('rango-km').value = data.rango_km;
-  document.getElementById('rango-tarifa').value = data.tarifa;
-  document.getElementById('rango-destinos').value = data.destinos;
-  document.getElementById('rango-activo').checked = data.activo;
+  repartoEditando = data;
+  document.getElementById('modal-titulo').textContent = 'Editar reparto';
+  document.getElementById('reparto-id').value = data.id;
+  document.getElementById('reparto-nombre').value = data.nombre;
+  document.getElementById('reparto-distancia').value = data.distancia;
+  document.getElementById('reparto-precio').value = data.precio;
+  document.getElementById('reparto-activo').checked = data.activo;
   modalInstancia.show();
 }
 
-async function guardarRango() {
-  const id = document.getElementById('rango-id').value;
-  const anillo = parseInt(document.getElementById('rango-anillo').value);
-  const clasificacion = document.getElementById('rango-clasificacion').value.trim();
-  const rango_km = document.getElementById('rango-km').value.trim();
-  const tarifa = parseFloat(document.getElementById('rango-tarifa').value);
-  const destinos = document.getElementById('rango-destinos').value.trim();
-  const activo = document.getElementById('rango-activo').checked;
+async function guardarReparto() {
+  const id = document.getElementById('reparto-id').value;
+  const nombre = document.getElementById('reparto-nombre').value.trim();
+  const distancia = document.getElementById('reparto-distancia').value.trim();
+  const precio = parseFloat(document.getElementById('reparto-precio').value);
+  const activo = document.getElementById('reparto-activo').checked;
 
-  if (!clasificacion || !rango_km || isNaN(tarifa) || !destinos || isNaN(anillo)) {
-    mostrarMensaje('Completa todos los campos.');
+  if (!nombre || !distancia || isNaN(precio) || precio < 0) {
+    mostrarMensaje('Completa todos los campos correctamente.');
     return;
   }
 
   if (id) {
     const { error } = await window.comecomeSupabase
-      .from('rangos_envio')
-      .update({ anillo, clasificacion, rango_km, tarifa, destinos, activo })
+      .from('repartos')
+      .update({ nombre, distancia, precio, activo })
       .eq('id', id);
     if (error) { mostrarMensaje('Error al actualizar'); return; }
   } else {
     const { error } = await window.comecomeSupabase
-      .from('rangos_envio')
-      .insert([{ anillo, clasificacion, rango_km, tarifa, destinos, activo }]);
+      .from('repartos')
+      .insert([{ nombre, distancia, precio, activo }]);
     if (error) { mostrarMensaje('Error al crear'); return; }
   }
 
   modalInstancia.hide();
-  cargarRangos();
+  cargarRepartos();
 }
 
-async function toggleRango(id) {
-  const { data: rango } = await window.comecomeSupabase
-    .from('rangos_envio')
+async function toggleReparto(id) {
+  const { data: reparto } = await window.comecomeSupabase
+    .from('repartos')
     .select('activo')
     .eq('id', id)
     .single();
-  if (!rango) return;
+  if (!reparto) return;
 
   await window.comecomeSupabase
-    .from('rangos_envio')
-    .update({ activo: !rango.activo })
+    .from('repartos')
+    .update({ activo: !reparto.activo })
     .eq('id', id);
-  cargarRangos();
+  cargarRepartos();
 }
 
-async function eliminarRango(id) {
+async function eliminarReparto(id) {
   const { error } = await window.comecomeSupabase
-    .from('rangos_envio')
+    .from('repartos')
     .delete()
     .eq('id', id);
   if (error) { mostrarMensaje('Error al eliminar'); return; }
-  cargarRangos();
+  cargarRepartos();
 }
 
 function mostrarMensaje(texto) {
@@ -137,4 +127,4 @@ function mostrarMensaje(texto) {
   aviso.textContent = texto;
   contenedor.prepend(aviso);
   setTimeout(() => aviso.remove(), 3000);
-  }
+}
