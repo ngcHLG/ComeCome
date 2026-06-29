@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ComeCome - Zonas de envío</title>
+  <title>ComeCome - Rangos de envío</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <style>
@@ -27,7 +27,7 @@
     }
     .btn-outline-amarillo:hover { background-color: var(--amarillo); color: var(--negro); }
 
-    .zona-item {
+    .rango-item {
       background-color: #111;
       border: 2px solid var(--amarillo);
       border-radius: 0.5rem;
@@ -39,21 +39,21 @@
       flex-wrap: wrap;
       gap: 0.5rem;
     }
-    .zona-info { display: flex; align-items: center; gap: 1rem; flex-grow: 1; }
-    .zona-nombre { font-weight: bold; text-transform: uppercase; color: var(--amarillo); }
-    .zona-precio { color: var(--blanco); font-size: 0.9rem; }
-    .zona-estado { font-size: 0.85rem; }
-    .zona-acciones { display: flex; gap: 0.3rem; }
+    .rango-info { display: flex; align-items: center; gap: 1rem; flex-grow: 1; flex-wrap: wrap; }
+    .rango-anillo {
+      font-weight: bold; font-size: 1.2rem; color: var(--amarillo);
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .rango-detalles { font-size: 0.9rem; }
+    .rango-acciones { display: flex; gap: 0.3rem; }
 
     .modal-content { background-color: #111; border: 2px solid var(--amarillo); color: var(--blanco); }
     .modal-header, .modal-footer { border-color: var(--amarillo); }
-    .form-control {
+    .form-control, .form-select {
       background-color: #000; color: var(--blanco); border: 1px solid var(--amarillo);
     }
     .form-control:focus { border-color: var(--amarillo); box-shadow: 0 0 0 0.2rem rgba(252, 224, 41, 0.25); }
     .form-check-input:checked { background-color: var(--amarillo); border-color: var(--amarillo); }
-
-    .mapa-preview { max-width: 200px; max-height: 200px; border: 2px solid var(--amarillo); border-radius: 0.5rem; }
   </style>
 </head>
 <body>
@@ -68,52 +68,49 @@
   </nav>
 
   <main class="container my-4">
-    <h2 class="text-warning mb-3"><i class="bi bi-map-fill"></i> Zonas de envío</h2>
-
-    <!-- Subida del mapa -->
-    <div class="mb-4 p-3" style="background-color:#111; border:2px solid var(--amarillo); border-radius:0.5rem;">
-      <h5 class="text-warning"><i class="bi bi-image"></i> Mapa de zonas</h5>
-      <div class="d-flex align-items-center gap-3 flex-wrap">
-        <img id="mapa-img" src="" alt="Mapa" class="mapa-preview d-none">
-        <div>
-          <input type="file" id="mapa-file" accept="image/*" class="form-control form-control-sm mb-2">
-          <button class="btn btn-amarillo btn-sm" onclick="subirMapa()"><i class="bi bi-cloud-upload"></i> Subir mapa</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Lista de zonas -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="text-warning mb-0">Lista de zonas</h5>
+      <h2 class="text-warning"><i class="bi bi-truck"></i> Rangos de envío</h2>
       <button class="btn btn-amarillo btn-sm" onclick="abrirModalNuevo()">
-        <i class="bi bi-plus-lg"></i> Nueva
+        <i class="bi bi-plus-lg"></i> Nuevo
       </button>
     </div>
-    <div id="zonas-container"></div>
+    <div id="rangos-container"></div>
   </main>
 
-  <!-- Modal crear/editar zona -->
-  <div class="modal fade" id="zonaModal" tabindex="-1">
-    <div class="modal-dialog modal-sm">
+  <!-- Modal crear/editar rango -->
+  <div class="modal fade" id="rangoModal" tabindex="-1">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modal-titulo">Nueva zona</h5>
+          <h5 class="modal-title" id="modal-titulo">Nuevo rango</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="zona-form">
-            <input type="hidden" id="zona-id">
+          <form id="rango-form">
+            <input type="hidden" id="rango-id">
             <div class="mb-3">
-              <label class="form-label">Nombre</label>
-              <input type="text" class="form-control form-control-sm" id="zona-nombre" required>
+              <label class="form-label">Anillo (número)</label>
+              <input type="number" min="1" class="form-control form-control-sm" id="rango-anillo" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Precio de envío (CUP)</label>
-              <input type="number" step="0.01" min="0" class="form-control form-control-sm" id="zona-precio" required>
+              <label class="form-label">Clasificación (ej: Muy cerca)</label>
+              <input type="text" class="form-control form-control-sm" id="rango-clasificacion" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Rango km (ej: 0–2 km)</label>
+              <input type="text" class="form-control form-control-sm" id="rango-km" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Tarifa (CUP)</label>
+              <input type="number" step="0.01" min="0" class="form-control form-control-sm" id="rango-tarifa" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Destinos incluidos</label>
+              <textarea class="form-control form-control-sm" id="rango-destinos" rows="3" required></textarea>
             </div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="zona-activo" checked>
-              <label class="form-check-label" for="zona-activo">Activo</label>
+              <input class="form-check-input" type="checkbox" id="rango-activo" checked>
+              <label class="form-check-label" for="rango-activo">Activo</label>
             </div>
           </form>
         </div>
