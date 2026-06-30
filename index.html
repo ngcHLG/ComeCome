@@ -307,7 +307,7 @@
     }
 
     async function cargarImagenRecogida() {
-      const { data } = supabaseClient.storage.from('mapa').getPublicUrl('admin/map-center.png');
+      const { data } = supabaseClient.storage.from('mapa').getPublicUrl('admin/mapa_zonas.png');
       const img = document.getElementById('recogida-img');
       const placeholder = document.getElementById('recogida-placeholder');
       if (data && data.publicUrl) {
