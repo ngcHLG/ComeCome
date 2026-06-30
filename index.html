@@ -10,30 +10,75 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <!-- Tipografías -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --amarillo: #FCE029;
-      --amarillo-hover: #e6c800;
-      --negro: #000;
-      --blanco: #fff;
+      --amarillo-hover: #E6C800;
+      --carbon: #1C1C1C;
+      --crema: #FFFCF5;
+      --rojo-oferta: #E63946;
+      --gris-texto: #6B6B6B;
+      --borde-suave: rgba(0,0,0,0.08);
+      --sombra-card: 0 2px 8px rgba(0,0,0,0.06);
+      --sombra-card-hover: 0 10px 26px rgba(0,0,0,0.14);
     }
-    body { background-color: var(--blanco); font-family: 'Segoe UI', sans-serif; }
-    .navbar, .footer { background-color: var(--negro); }
+
+    * { -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background-color: var(--crema);
+      font-family: 'Inter', sans-serif;
+      color: #2a2a2a;
+    }
+
+    h1, h2, h3, .navbar-brand, .btn-categoria, .card-title, .fw-bold.fs-5, .offcanvas-title {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    ::selection { background: var(--amarillo); color: var(--carbon); }
+
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid var(--amarillo-hover);
+      outline-offset: 2px;
+    }
+
+    .navbar, .footer { background-color: var(--carbon); }
     .navbar-brand, .nav-link, .btn-carrito { color: var(--amarillo) !important; }
+    .navbar-brand { font-weight: 700; font-size: 1.35rem; letter-spacing: 0.3px; }
+
     .btn-amarillo {
-      background-color: var(--amarillo); color: var(--negro);
-      border: none; font-weight: bold;
+      background-color: var(--amarillo); color: var(--carbon);
+      border: none; font-weight: 600; font-family: 'Fredoka', sans-serif;
+      border-radius: 0.6rem; transition: transform 0.15s ease, background-color 0.15s ease;
     }
-    .btn-amarillo:hover { background-color: var(--amarillo-hover); }
+    .btn-amarillo:hover { background-color: var(--amarillo-hover); transform: translateY(-1px); }
+    .btn-amarillo:active { transform: translateY(0); }
+    .btn-amarillo:disabled { opacity: 0.5; transform: none; }
+
     .card-producto {
-      border: 2px solid var(--amarillo); transition: transform 0.2s;
+      border: none; border-radius: 1rem; overflow: hidden;
+      box-shadow: var(--sombra-card); background: #fff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .card-producto:hover { transform: scale(1.02); }
-    .badge-oferta { background-color: var(--amarillo); color: var(--negro); }
-    .offcanvas-header, .offcanvas-footer { background-color: var(--negro); color: var(--amarillo); }
-    .offcanvas-body { background-color: var(--blanco); }
+    .card-producto:hover { transform: translateY(-4px); box-shadow: var(--sombra-card-hover); }
+    .card-producto .card-img-top { aspect-ratio: 4/3; object-fit: cover; }
+
+    .badge-oferta {
+      background-color: var(--rojo-oferta); color: #fff;
+      font-family: 'Fredoka', sans-serif; font-weight: 600;
+      border-radius: 2rem; padding: 0.35rem 0.7rem;
+    }
+
+    .offcanvas-header, .offcanvas-footer { background-color: var(--carbon); color: var(--amarillo); }
+    .offcanvas-body { background-color: var(--crema); }
+
     .toast {
-      background-color: var(--negro); color: var(--amarillo); border: 1px solid var(--amarillo);
+      background-color: var(--carbon); color: var(--amarillo);
+      border: 1px solid var(--amarillo); border-radius: 0.8rem;
     }
     .toast .btn-close { filter: invert(1); }
     .toast .toast-body { font-size: 0.9rem; line-height: 1.3; }
@@ -41,40 +86,77 @@
 
     /* Barra de categorías */
     .categorias-nav {
-      background-color: var(--negro); padding: 0.5rem 0;
+      background-color: var(--carbon); padding: 0.6rem 0;
       position: sticky; top: 56px; z-index: 1020;
       overflow-x: auto; white-space: nowrap;
       -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
     .categorias-nav::-webkit-scrollbar { display: none; }
-    .categorias-nav .container { display: flex; flex-wrap: nowrap; padding: 0 1rem; }
+    .categorias-nav .container { display: flex; flex-wrap: nowrap; padding: 0 1rem; gap: 0.4rem; }
     .btn-categoria {
-      display: inline-block; background: transparent; color: var(--blanco);
-      border: none; border-bottom: 3px solid transparent;
-      padding: 0.4rem 1rem; margin: 0 0.2rem; font-weight: bold; font-size: 0.9rem;
+      display: inline-block; background: transparent; color: #d9d9d9;
+      border: 1px solid transparent; border-radius: 2rem;
+      padding: 0.4rem 1rem; margin: 0; font-weight: 600; font-size: 0.88rem;
       transition: all 0.2s ease; white-space: nowrap; text-decoration: none;
     }
-    .btn-categoria:hover { color: var(--amarillo); border-bottom-color: var(--amarillo-hover); }
-    .btn-categoria.active { color: var(--amarillo); border-bottom-color: var(--amarillo); }
+    .btn-categoria:hover { color: var(--amarillo); border-color: rgba(252,224,41,0.4); }
+    .btn-categoria.active { color: var(--carbon); background: var(--amarillo); border-color: var(--amarillo); }
 
     /* Imagen placeholder para productos sin foto */
     .producto-sin-foto {
-      width: 100%; height: 200px; background-color: var(--negro);
-      border: 1px solid var(--amarillo); color: var(--amarillo);
-      display: flex; align-items: center; justify-content: center; font-size: 3rem;
+      width: 100%; aspect-ratio: 4/3; background-color: var(--carbon);
+      color: var(--amarillo);
+      display: flex; align-items: center; justify-content: center; font-size: 2.6rem;
     }
 
-    /* Toast centrado y autoajustable */
-    .toast-container {
-      display: flex; justify-content: center; left: 0; right: 0; pointer-events: none;
+    /* Mapa del punto de recogida */
+    .recogida-mapa-wrap {
+      border-radius: 0.8rem; overflow: hidden; border: 2px solid var(--amarillo);
     }
-    .toast {
-      max-width: 90vw; margin: 0 auto; pointer-events: auto;
+    .recogida-mapa-wrap iframe { width: 100%; height: 190px; display: block; border: 0; }
+    .recogida-info { font-size: 0.85rem; color: var(--gris-texto); margin-top: 0.5rem; }
+    .btn-como-llegar { font-size: 0.78rem; border-radius: 2rem; }
+
+    /* Carrito: stepper de cantidad */
+    .carrito-item { border: none !important; border-bottom: 1px solid var(--borde-suave) !important; padding: 0.9rem 0.25rem; }
+    .stepper { display: flex; align-items: center; gap: 0.6rem; }
+    .stepper button {
+      width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--borde-suave);
+      background: #fff; display: flex; align-items: center; justify-content: center; line-height: 1;
+      transition: background-color 0.15s ease;
     }
+    .stepper button:hover { background: var(--amarillo); }
+    .stepper span { min-width: 1.2rem; text-align: center; font-weight: 600; }
+
+    #cart-count.bump { animation: bump 0.3s ease; }
+    @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.4); } 100% { transform: scale(1); } }
+
+    .carrito-vacio { text-align: center; padding: 2.5rem 1rem; color: var(--gris-texto); }
+    .carrito-vacio i { font-size: 2.4rem; color: var(--amarillo-hover); }
+
+    /* Skeletons de carga */
+    .skeleton {
+      background: linear-gradient(90deg, #ececec 25%, #f6f6f6 50%, #ececec 75%);
+      background-size: 200% 100%; animation: skeleton-pulse 1.4s ease-in-out infinite;
+      border-radius: 0.6rem;
+    }
+    @keyframes skeleton-pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton-card { height: 270px; border-radius: 1rem; }
+    .skeleton-chip { height: 32px; width: 84px; border-radius: 2rem; display: inline-block; margin-right: 0.4rem; flex: none; }
+
     @media (max-width: 280px) {
       .toast .toast-body { font-size: 0.8rem; padding: 0.5rem; }
       .toast .btn-close { font-size: 0.7rem; }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+
+    /* Toast centrado y autoajustable */
+    .toast-container { display: flex; justify-content: center; left: 0; right: 0; pointer-events: none; }
+    .toast { max-width: 90vw; margin: 0 auto; pointer-events: auto; }
   </style>
 </head>
 <body>
@@ -95,7 +177,11 @@
 
   <!-- Barra de categorías -->
   <div class="categorias-nav" id="categorias-nav">
-    <div class="container" id="categorias-container"></div>
+    <div class="container" id="categorias-container">
+      <span class="skeleton skeleton-chip"></span>
+      <span class="skeleton skeleton-chip"></span>
+      <span class="skeleton skeleton-chip"></span>
+    </div>
   </div>
 
   <!-- Aviso de horario (dinámico) -->
@@ -118,7 +204,11 @@
   <!-- Contenido principal -->
   <main class="container my-4">
     <h2 class="mb-3"><i class="bi bi-list-ul"></i> Nuestra Carta</h2>
-    <div id="productos-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
+    <div id="productos-container" class="row row-cols-1 row-cols-md-3 g-4">
+      <div class="col"><div class="skeleton skeleton-card"></div></div>
+      <div class="col"><div class="skeleton skeleton-card"></div></div>
+      <div class="col"><div class="skeleton skeleton-card"></div></div>
+    </div>
   </main>
 
   <!-- Footer -->
@@ -157,19 +247,22 @@
           <option value="domicilio">Domicilio</option>
         </select>
       </div>
-      <!-- Bloque para recoger en tienda (mapa de Google) -->
+      <!-- Bloque para recoger en tienda -->
       <div id="bloque-recoger" class="mb-3">
-        <iframe
-          src="https://maps.google.com/maps?q=20.8899012,-76.268574&z=17&output=embed"
-          width="100%" height="200" style="border:2px solid #FCE029; border-radius:0.5rem;"
-          allowfullscreen="" loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
-        <small class="text-muted mt-1 d-block text-center">
-          <a href="https://maps.google.com/?q=20.8899012,-76.268574" target="_blank" class="text-warning">
-            <i class="bi bi-geo-alt-fill"></i> Ver en Google Maps
+        <div class="recogida-mapa-wrap">
+          <iframe
+            src="https://www.google.com/maps?q=El+ComeCome,20.8899012,-76.268574&z=17&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Ubicación de recogida El ComeCome">
+          </iframe>
+        </div>
+        <div class="recogida-info d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <span><i class="bi bi-geo-alt-fill text-warning"></i> El ComeCome, Holguín</span>
+          <a href="https://maps.app.goo.gl/B91nN9nquHnSKS4PA" target="_blank" rel="noopener" class="btn btn-sm btn-outline-dark btn-como-llegar">
+            <i class="bi bi-signpost-2"></i> Cómo llegar
           </a>
-        </small>
+        </div>
       </div>
       <!-- Bloque para domicilio -->
       <div id="bloque-domicilio" class="mb-3 d-none">
@@ -389,7 +482,7 @@
 
     async function cargarCombosPublicos() {
       const container = document.getElementById('productos-container');
-      container.innerHTML = '<p class="text-muted">Cargando combos...</p>';
+      container.innerHTML = '<div class="col"><div class="skeleton skeleton-card"></div></div><div class="col"><div class="skeleton skeleton-card"></div></div><div class="col"><div class="skeleton skeleton-card"></div></div>';
 
       const { data: combos, error } = await supabaseClient
         .from('combos')
@@ -544,6 +637,15 @@
       actualizarCarrito();
     }
 
+    function cambiarCantidad(index, delta) {
+      if (index < 0 || index >= carrito.length) return;
+      carrito[index].cantidad += delta;
+      if (carrito[index].cantidad <= 0) {
+        carrito.splice(index, 1);
+      }
+      actualizarCarrito();
+    }
+
     function actualizarCarrito() {
       const lista = document.getElementById('carrito-lista');
       const totalSpan = document.getElementById('total-pedido');
@@ -551,20 +653,24 @@
       const btnCheckout = document.getElementById('btn-checkout');
 
       lista.innerHTML = carrito.map((item, index) => `
-        <div class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="list-group-item carrito-item d-flex justify-content-between align-items-start">
           <div class="w-100">
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between align-items-start">
               <strong>${item.nombre} ${item.esCombo ? '<small class="text-warning">(Combo)</small>' : ''}</strong>
-              <span class="text-muted small">${item.cantidad} x ${item.precio.toFixed(2)} CUP</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-1">
               <span class="fw-bold">${(item.precio * item.cantidad).toFixed(2)} CUP</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <div class="stepper">
+                <button type="button" onclick="cambiarCantidad(${index}, -1)" aria-label="Quitar una unidad"><i class="bi bi-dash"></i></button>
+                <span>${item.cantidad}</span>
+                <button type="button" onclick="cambiarCantidad(${index}, 1)" aria-label="Añadir una unidad"><i class="bi bi-plus"></i></button>
+              </div>
               <button class="btn btn-sm text-danger" onclick="eliminarDelCarrito(${index})" title="Eliminar"><i class="bi bi-trash"></i></button>
             </div>
             ${!item.esCombo && item.permiteExtras ? `<input type="text" class="form-control form-control-sm mt-2" placeholder="Extras (ej: sin cebolla)" value="${item.extras}" oninput="actualizarExtras(${index}, this.value)">` : ''}
           </div>
         </div>
-      `).join('') || '<p class="text-muted">No hay productos en el carrito.</p>';
+      `).join('') || `<div class="carrito-vacio"><i class="bi bi-basket"></i><p class="mt-2 mb-0 fw-semibold">Tu carrito está vacío</p><small>Añade algo rico de la carta 🍔</small></div>`;
 
       const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
       let envio = 0;
@@ -576,7 +682,16 @@
       }
       const total = subtotal + envio;
       totalSpan.textContent = total.toFixed(2) + ' CUP';
-      countBadge.textContent = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+
+      const nuevoConteo = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+      if (countBadge.textContent !== String(nuevoConteo)) {
+        countBadge.classList.remove('bump');
+        void countBadge.offsetWidth;
+        countBadge.classList.add('bump');
+      }
+      countBadge.textContent = nuevoConteo;
+
+      // Habilitar botón si hay productos y, en caso de domicilio, hay reparto seleccionado
       const repartoOk = tipoEntrega === 'recoger' || (tipoEntrega === 'domicilio' && document.getElementById('reparto-select')?.value);
       btnCheckout.disabled = carrito.length === 0 || !repartoOk;
     }
