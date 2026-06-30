@@ -18,14 +18,13 @@
     :root {
       --amarillo: #FCE029;
       --amarillo-hover: #FFD400;
+      --amarillo-oscuro: #e6c800;
       --negro: #141414;
-      --rojo: #FF3B30;
-      --naranja: #FF8A00;
       --gris-texto: #6B6B6B;
       --borde-suave: rgba(0,0,0,0.08);
       --sombra-card: 0 3px 10px rgba(0,0,0,0.08);
       --sombra-card-hover: 0 14px 28px rgba(0,0,0,0.16);
-      --gradiente-cta: linear-gradient(135deg, var(--rojo), var(--naranja));
+      --gradiente-cta: linear-gradient(135deg, var(--amarillo), var(--amarillo-hover));
     }
 
     * { -webkit-tap-highlight-color: transparent; }
@@ -43,7 +42,7 @@
     ::selection { background: var(--amarillo); color: var(--negro); }
 
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-      outline: 3px solid var(--naranja);
+      outline: 3px solid var(--amarillo);
       outline-offset: 2px;
     }
 
@@ -52,12 +51,12 @@
     .navbar-brand { font-weight: 800; font-size: 1.35rem; letter-spacing: 0.2px; }
 
     .btn-amarillo {
-      background: var(--gradiente-cta); color: #fff;
+      background: var(--gradiente-cta); color: var(--negro);
       border: none; font-weight: 700; font-family: 'Poppins', sans-serif;
-      border-radius: 2rem; box-shadow: 0 6px 16px rgba(255,59,48,0.35);
+      border-radius: 2rem; box-shadow: 0 6px 16px rgba(252,224,41,0.45);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .btn-amarillo:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(255,59,48,0.45); }
+    .btn-amarillo:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(252,224,41,0.55); }
     .btn-amarillo:active { transform: translateY(0); }
     .btn-amarillo:disabled { opacity: 0.45; box-shadow: none; transform: none; }
 
@@ -86,9 +85,9 @@
     .btn-add-flotante {
       position: absolute; right: 14px; bottom: -18px; z-index: 3;
       width: 44px; height: 44px; border-radius: 50%;
-      background: var(--gradiente-cta); color: #fff; border: 3px solid #fff;
+      background: var(--gradiente-cta); color: var(--negro); border: 3px solid #fff;
       display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
-      box-shadow: 0 6px 14px rgba(255,59,48,0.45);
+      box-shadow: 0 6px 14px rgba(252,224,41,0.55);
       transition: transform 0.15s ease;
     }
     .btn-add-flotante:hover { transform: scale(1.12) rotate(8deg); }
@@ -102,7 +101,7 @@
 
     .badge-oferta {
       position: absolute; top: 10px; left: 10px; z-index: 2;
-      background: var(--gradiente-cta); color: #fff; font-weight: 700;
+      background: var(--gradiente-cta); color: var(--negro); font-weight: 700;
       border-radius: 2rem; padding: 0.3rem 0.7rem; font-size: 0.78rem;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
@@ -112,7 +111,7 @@
 
     .toast {
       background-color: var(--negro); color: #fff;
-      border: 1px solid var(--rojo); border-radius: 0.8rem;
+      border: 1px solid var(--amarillo); border-radius: 0.8rem;
     }
     .toast i.bi-check-circle-fill { color: var(--amarillo); }
     .toast .btn-close { filter: invert(1); }
@@ -137,27 +136,28 @@
     }
     .btn-categoria:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
     .btn-categoria.active {
-      background: var(--gradiente-cta); color: #fff; border-color: transparent;
-      box-shadow: 0 4px 12px rgba(255,59,48,0.4);
+      background: var(--gradiente-cta); color: var(--negro); border-color: transparent;
+      box-shadow: 0 4px 12px rgba(252,224,41,0.5);
     }
 
     /* Icono junto al título */
     .icono-titulo {
-      background: var(--gradiente-cta); color: #fff;
+      background: var(--gradiente-cta); color: var(--negro);
       width: 38px; height: 38px; border-radius: 50%;
       display: inline-flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; box-shadow: 0 4px 10px rgba(255,59,48,0.35);
+      font-size: 1.1rem; box-shadow: 0 4px 10px rgba(252,224,41,0.45);
     }
 
     /* Mapa del punto de recogida */
     .recogida-mapa-wrap { border-radius: 0.8rem; overflow: hidden; border: 2px solid var(--amarillo); }
     .recogida-mapa-wrap iframe { width: 100%; height: 190px; display: block; border: 0; }
     .recogida-info { font-size: 0.85rem; color: var(--gris-texto); margin-top: 0.5rem; }
-    .btn-como-llegar.btn-outline-dark {
+    .btn-como-llegar {
       font-size: 0.78rem; border-radius: 2rem;
-      color: var(--rojo); border-color: var(--rojo);
+      color: var(--negro); border-color: var(--amarillo);
+      background: transparent;
     }
-    .btn-como-llegar.btn-outline-dark:hover { background-color: var(--rojo); border-color: var(--rojo); color: #fff; }
+    .btn-como-llegar:hover { background-color: var(--amarillo); border-color: var(--amarillo); color: var(--negro); }
 
     /* Carrito: stepper de cantidad */
     .carrito-item { border: none !important; border-bottom: 1px solid var(--borde-suave) !important; padding: 0.9rem 0.25rem; }
@@ -167,17 +167,17 @@
       background: #fff; display: flex; align-items: center; justify-content: center; line-height: 1;
       transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
     }
-    .stepper button:hover { background: var(--gradiente-cta); color: #fff; border-color: transparent; }
+    .stepper button:hover { background: var(--gradiente-cta); color: var(--negro); border-color: transparent; }
     .stepper span { min-width: 1.2rem; text-align: center; font-weight: 600; }
 
-    #cart-count { background-color: var(--rojo) !important; color: #fff !important; }
+    #cart-count { background-color: var(--amarillo) !important; color: var(--negro) !important; }
     #cart-count.bump { animation: bump 0.3s ease; }
     @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.4); } 100% { transform: scale(1); } }
 
     .carrito-vacio { text-align: center; padding: 2.5rem 1rem; color: var(--gris-texto); }
-    .carrito-vacio i { font-size: 2.4rem; color: var(--naranja); }
+    .carrito-vacio i { font-size: 2.4rem; color: var(--amarillo); }
 
-    #total-pedido { color: var(--rojo); font-size: 1.15rem; }
+    #total-pedido { color: var(--negro); font-size: 1.15rem; }
 
     /* Skeletons de carga */
     .skeleton {
@@ -294,11 +294,11 @@
           <option value="domicilio">Domicilio</option>
         </select>
       </div>
-      <!-- Bloque para recoger en tienda -->
+      <!-- Bloque para recoger en tienda (mapa con zoom amplio) -->
       <div id="bloque-recoger" class="mb-3">
         <div class="recogida-mapa-wrap">
           <iframe
-            src="https://www.google.com/maps?q=El+ComeCome,20.8899012,-76.268574&z=17&output=embed"
+            src="https://www.google.com/maps?q=El+ComeCome&z=15&output=embed"
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
             title="Ubicación de recogida El ComeCome">
@@ -306,7 +306,7 @@
         </div>
         <div class="recogida-info d-flex justify-content-between align-items-center flex-wrap gap-2">
           <span><i class="bi bi-geo-alt-fill text-warning"></i> El ComeCome, Holguín</span>
-          <a href="https://maps.app.goo.gl/B91nN9nquHnSKS4PA" target="_blank" rel="noopener" class="btn btn-sm btn-outline-dark btn-como-llegar">
+          <a href="https://maps.app.goo.gl/B91nN9nquHnSKS4PA" target="_blank" rel="noopener" class="btn btn-sm btn-como-llegar">
             <i class="bi bi-signpost-2"></i> Cómo llegar
           </a>
         </div>
