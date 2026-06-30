@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ComeCome - Hamburguesería</title>
-    <!-- Favicon para la pestaña del navegador -->
+  <!-- Favicon para la pestaña del navegador -->
   <link rel="icon" type="image/png" href="pacman-icon.png">
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -63,14 +63,6 @@
       border: 1px solid var(--amarillo); color: var(--amarillo);
       display: flex; align-items: center; justify-content: center; font-size: 3rem;
     }
-    /* Imagen del punto de recogida */
-    .recogida-img {
-      width: 100%; max-height: 200px; object-fit: cover; border: 2px solid var(--amarillo); border-radius: 0.5rem;
-    }
-    .recogida-placeholder {
-      width: 100%; height: 150px; background-color: #111; border: 2px solid var(--amarillo); color: var(--amarillo);
-      display: flex; align-items: center; justify-content: center; font-size: 1rem; text-align: center;
-    }
 
     /* Toast centrado y autoajustable */
     .toast-container {
@@ -90,7 +82,10 @@
   <!-- Navbar -->
   <nav class="navbar navbar-dark bg-dark sticky-top">
     <div class="container">
-      <a class="navbar-brand fw-bold d-flex align-items-center" href="#">   <img src="pacman-icon.png" alt="ComeCome" style="height: 30px; width: 30px; object-fit: contain; margin-right: 0.5rem;">   ComeCome </a>
+      <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+        <img src="pacman-icon.png" alt="ComeCome" style="height: 30px; width: 30px; object-fit: contain; margin-right: 0.5rem;">
+        ComeCome
+      </a>
       <button class="btn btn-outline-warning position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#carritoOffcanvas">
         <i class="bi bi-cart-fill"></i>
         <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">0</span>
@@ -162,12 +157,19 @@
           <option value="domicilio">Domicilio</option>
         </select>
       </div>
-      <!-- Bloque para recoger en tienda -->
+      <!-- Bloque para recoger en tienda (mapa de Google) -->
       <div id="bloque-recoger" class="mb-3">
-        <img id="recogida-img" src="" alt="Punto de recogida" class="recogida-img d-none">
-        <div id="recogida-placeholder" class="recogida-placeholder d-none">
-          <span>Punto de recogida</span>
-        </div>
+        <iframe
+          src="https://maps.google.com/maps?q=20.8899012,-76.268574&z=17&output=embed"
+          width="100%" height="200" style="border:2px solid #FCE029; border-radius:0.5rem;"
+          allowfullscreen="" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+        <small class="text-muted mt-1 d-block text-center">
+          <a href="https://maps.google.com/?q=20.8899012,-76.268574" target="_blank" class="text-warning">
+            <i class="bi bi-geo-alt-fill"></i> Ver en Google Maps
+          </a>
+        </small>
       </div>
       <!-- Bloque para domicilio -->
       <div id="bloque-domicilio" class="mb-3 d-none">
@@ -246,7 +248,6 @@
       await cargarProductos();
       await verificarCombosActivos();
       await cargarRepartosEnvio();
-      await cargarImagenRecogida();
       renderCategorias();
       await verificarHorario();
       renderProductos();
@@ -303,20 +304,6 @@
           opt.textContent = `${r.nombre} (${r.distancia}) +${parseFloat(r.precio).toFixed(2)} CUP`;
           select.appendChild(opt);
         });
-      }
-    }
-
-    async function cargarImagenRecogida() {
-      const { data } = supabaseClient.storage.from('mapa').getPublicUrl('mapa_zonas.png');
-      const img = document.getElementById('recogida-img');
-      const placeholder = document.getElementById('recogida-placeholder');
-      if (data && data.publicUrl) {
-        img.src = data.publicUrl;
-        img.classList.remove('d-none');
-        placeholder.classList.add('d-none');
-      } else {
-        img.classList.add('d-none');
-        placeholder.classList.remove('d-none');
       }
     }
 
@@ -590,7 +577,6 @@
       const total = subtotal + envio;
       totalSpan.textContent = total.toFixed(2) + ' CUP';
       countBadge.textContent = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-      // Habilitar botón si hay productos y, en caso de domicilio, hay reparto seleccionado
       const repartoOk = tipoEntrega === 'recoger' || (tipoEntrega === 'domicilio' && document.getElementById('reparto-select')?.value);
       btnCheckout.disabled = carrito.length === 0 || !repartoOk;
     }
