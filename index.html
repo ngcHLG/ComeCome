@@ -13,80 +13,115 @@
   <!-- Tipografías -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --amarillo: #FCE029;
-      --amarillo-hover: #E6C800;
-      --carbon: #1C1C1C;
-      --crema: #FFFCF5;
-      --rojo-oferta: #E63946;
+      --amarillo-hover: #FFD400;
+      --negro: #141414;
+      --rojo: #FF3B30;
+      --naranja: #FF8A00;
       --gris-texto: #6B6B6B;
       --borde-suave: rgba(0,0,0,0.08);
-      --sombra-card: 0 2px 8px rgba(0,0,0,0.06);
-      --sombra-card-hover: 0 10px 26px rgba(0,0,0,0.14);
+      --sombra-card: 0 3px 10px rgba(0,0,0,0.08);
+      --sombra-card-hover: 0 14px 28px rgba(0,0,0,0.16);
+      --gradiente-cta: linear-gradient(135deg, var(--rojo), var(--naranja));
     }
 
     * { -webkit-tap-highlight-color: transparent; }
 
     body {
-      background-color: var(--crema);
+      background-color: #FFFCF5;
       font-family: 'Inter', sans-serif;
-      color: #2a2a2a;
+      color: #222;
     }
 
-    h1, h2, h3, .navbar-brand, .btn-categoria, .card-title, .fw-bold.fs-5, .offcanvas-title {
-      font-family: 'Fredoka', sans-serif;
+    h1, h2, h3, .navbar-brand, .btn-categoria, .card-title, .fw-bold.fs-5, .offcanvas-title, .precio-pill {
+      font-family: 'Poppins', sans-serif;
     }
 
-    ::selection { background: var(--amarillo); color: var(--carbon); }
+    ::selection { background: var(--amarillo); color: var(--negro); }
 
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-      outline: 3px solid var(--amarillo-hover);
+      outline: 3px solid var(--naranja);
       outline-offset: 2px;
     }
 
-    .navbar, .footer { background-color: var(--carbon); }
+    .navbar, .footer { background-color: var(--negro); }
     .navbar-brand, .nav-link, .btn-carrito { color: var(--amarillo) !important; }
-    .navbar-brand { font-weight: 700; font-size: 1.35rem; letter-spacing: 0.3px; }
+    .navbar-brand { font-weight: 800; font-size: 1.35rem; letter-spacing: 0.2px; }
 
     .btn-amarillo {
-      background-color: var(--amarillo); color: var(--carbon);
-      border: none; font-weight: 600; font-family: 'Fredoka', sans-serif;
-      border-radius: 0.6rem; transition: transform 0.15s ease, background-color 0.15s ease;
+      background: var(--gradiente-cta); color: #fff;
+      border: none; font-weight: 700; font-family: 'Poppins', sans-serif;
+      border-radius: 2rem; box-shadow: 0 6px 16px rgba(255,59,48,0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .btn-amarillo:hover { background-color: var(--amarillo-hover); transform: translateY(-1px); }
+    .btn-amarillo:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(255,59,48,0.45); }
     .btn-amarillo:active { transform: translateY(0); }
-    .btn-amarillo:disabled { opacity: 0.5; transform: none; }
+    .btn-amarillo:disabled { opacity: 0.45; box-shadow: none; transform: none; }
 
+    /* Tarjetas de producto */
     .card-producto {
-      border: none; border-radius: 1rem; overflow: hidden;
+      position: relative;
+      border: none; border-radius: 1.1rem;
       box-shadow: var(--sombra-card); background: #fff;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .card-producto:hover { transform: translateY(-4px); box-shadow: var(--sombra-card-hover); }
-    .card-producto .card-img-top { aspect-ratio: 4/3; object-fit: cover; }
+
+    .producto-media { position: relative; }
+    .producto-media img, .producto-media .producto-sin-foto {
+      border-radius: 1.1rem 1.1rem 0 0;
+    }
+    .card-producto .card-img-top { aspect-ratio: 4/3; object-fit: cover; display: block; }
+    .producto-sin-foto {
+      width: 100%; aspect-ratio: 4/3; background-color: var(--negro);
+      color: var(--amarillo);
+      display: flex; align-items: center; justify-content: center; font-size: 2.6rem;
+    }
+
+    .card-body { padding-top: 1.7rem; border-radius: 0 0 1.1rem 1.1rem; }
+
+    .btn-add-flotante {
+      position: absolute; right: 14px; bottom: -18px; z-index: 3;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--gradiente-cta); color: #fff; border: 3px solid #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+      box-shadow: 0 6px 14px rgba(255,59,48,0.45);
+      transition: transform 0.15s ease;
+    }
+    .btn-add-flotante:hover { transform: scale(1.12) rotate(8deg); }
+    .btn-add-flotante:active { transform: scale(0.92); }
+    .btn-add-flotante:disabled { background: #bdbdbd; box-shadow: none; }
+
+    .precio-pill {
+      background: var(--amarillo); color: var(--negro); font-weight: 800;
+      border-radius: 2rem; padding: 0.3rem 0.85rem; font-size: 1.05rem; display: inline-block;
+    }
 
     .badge-oferta {
-      background-color: var(--rojo-oferta); color: #fff;
-      font-family: 'Fredoka', sans-serif; font-weight: 600;
-      border-radius: 2rem; padding: 0.35rem 0.7rem;
+      position: absolute; top: 10px; left: 10px; z-index: 2;
+      background: var(--gradiente-cta); color: #fff; font-weight: 700;
+      border-radius: 2rem; padding: 0.3rem 0.7rem; font-size: 0.78rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
-    .offcanvas-header, .offcanvas-footer { background-color: var(--carbon); color: var(--amarillo); }
-    .offcanvas-body { background-color: var(--crema); }
+    .offcanvas-header, .offcanvas-footer { background-color: var(--negro); color: var(--amarillo); }
+    .offcanvas-body { background-color: #FFFCF5; }
 
     .toast {
-      background-color: var(--carbon); color: var(--amarillo);
-      border: 1px solid var(--amarillo); border-radius: 0.8rem;
+      background-color: var(--negro); color: #fff;
+      border: 1px solid var(--rojo); border-radius: 0.8rem;
     }
+    .toast i.bi-check-circle-fill { color: var(--amarillo); }
     .toast .btn-close { filter: invert(1); }
     .toast .toast-body { font-size: 0.9rem; line-height: 1.3; }
     .error-message { display: none; }
 
     /* Barra de categorías */
     .categorias-nav {
-      background-color: var(--carbon); padding: 0.6rem 0;
+      background-color: var(--negro); padding: 0.6rem 0;
       position: sticky; top: 56px; z-index: 1020;
       overflow-x: auto; white-space: nowrap;
       -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;
@@ -95,28 +130,34 @@
     .categorias-nav::-webkit-scrollbar { display: none; }
     .categorias-nav .container { display: flex; flex-wrap: nowrap; padding: 0 1rem; gap: 0.4rem; }
     .btn-categoria {
-      display: inline-block; background: transparent; color: #d9d9d9;
-      border: 1px solid transparent; border-radius: 2rem;
+      display: inline-block; background: transparent; color: #cfcfcf;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 2rem;
       padding: 0.4rem 1rem; margin: 0; font-weight: 600; font-size: 0.88rem;
       transition: all 0.2s ease; white-space: nowrap; text-decoration: none;
     }
-    .btn-categoria:hover { color: var(--amarillo); border-color: rgba(252,224,41,0.4); }
-    .btn-categoria.active { color: var(--carbon); background: var(--amarillo); border-color: var(--amarillo); }
+    .btn-categoria:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+    .btn-categoria.active {
+      background: var(--gradiente-cta); color: #fff; border-color: transparent;
+      box-shadow: 0 4px 12px rgba(255,59,48,0.4);
+    }
 
-    /* Imagen placeholder para productos sin foto */
-    .producto-sin-foto {
-      width: 100%; aspect-ratio: 4/3; background-color: var(--carbon);
-      color: var(--amarillo);
-      display: flex; align-items: center; justify-content: center; font-size: 2.6rem;
+    /* Icono junto al título */
+    .icono-titulo {
+      background: var(--gradiente-cta); color: #fff;
+      width: 38px; height: 38px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; box-shadow: 0 4px 10px rgba(255,59,48,0.35);
     }
 
     /* Mapa del punto de recogida */
-    .recogida-mapa-wrap {
-      border-radius: 0.8rem; overflow: hidden; border: 2px solid var(--amarillo);
-    }
+    .recogida-mapa-wrap { border-radius: 0.8rem; overflow: hidden; border: 2px solid var(--amarillo); }
     .recogida-mapa-wrap iframe { width: 100%; height: 190px; display: block; border: 0; }
     .recogida-info { font-size: 0.85rem; color: var(--gris-texto); margin-top: 0.5rem; }
-    .btn-como-llegar { font-size: 0.78rem; border-radius: 2rem; }
+    .btn-como-llegar.btn-outline-dark {
+      font-size: 0.78rem; border-radius: 2rem;
+      color: var(--rojo); border-color: var(--rojo);
+    }
+    .btn-como-llegar.btn-outline-dark:hover { background-color: var(--rojo); border-color: var(--rojo); color: #fff; }
 
     /* Carrito: stepper de cantidad */
     .carrito-item { border: none !important; border-bottom: 1px solid var(--borde-suave) !important; padding: 0.9rem 0.25rem; }
@@ -124,16 +165,19 @@
     .stepper button {
       width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--borde-suave);
       background: #fff; display: flex; align-items: center; justify-content: center; line-height: 1;
-      transition: background-color 0.15s ease;
+      transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
     }
-    .stepper button:hover { background: var(--amarillo); }
+    .stepper button:hover { background: var(--gradiente-cta); color: #fff; border-color: transparent; }
     .stepper span { min-width: 1.2rem; text-align: center; font-weight: 600; }
 
+    #cart-count { background-color: var(--rojo) !important; color: #fff !important; }
     #cart-count.bump { animation: bump 0.3s ease; }
     @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.4); } 100% { transform: scale(1); } }
 
     .carrito-vacio { text-align: center; padding: 2.5rem 1rem; color: var(--gris-texto); }
-    .carrito-vacio i { font-size: 2.4rem; color: var(--amarillo-hover); }
+    .carrito-vacio i { font-size: 2.4rem; color: var(--naranja); }
+
+    #total-pedido { color: var(--rojo); font-size: 1.15rem; }
 
     /* Skeletons de carga */
     .skeleton {
@@ -203,7 +247,10 @@
 
   <!-- Contenido principal -->
   <main class="container my-4">
-    <h2 class="mb-3"><i class="bi bi-list-ul"></i> Nuestra Carta</h2>
+    <h2 class="mb-3 d-flex align-items-center gap-2">
+      <span class="icono-titulo"><i class="bi bi-fire"></i></span>
+      Nuestra Carta
+    </h2>
     <div id="productos-container" class="row row-cols-1 row-cols-md-3 g-4">
       <div class="col"><div class="skeleton skeleton-card"></div></div>
       <div class="col"><div class="skeleton skeleton-card"></div></div>
@@ -460,20 +507,20 @@
       container.innerHTML = productosFiltrados.map(p => `
         <div class="col">
           <div class="card card-producto h-100">
-            ${p.foto_url
-              ? `<img src="${p.foto_url}" class="card-img-top" alt="${p.nombre}">`
-              : `<div class="producto-sin-foto"><i class="bi bi-image"></i></div>`
-            }
+            <div class="producto-media">
+              ${p.foto_url
+                ? `<img src="${p.foto_url}" class="card-img-top" alt="${p.nombre}">`
+                : `<div class="producto-sin-foto"><i class="bi bi-image"></i></div>`
+              }
+              <button class="btn-add-flotante" onclick="agregarAlCarrito('${p.id}')" ${horarioAbierto ? '' : 'disabled'} aria-label="Añadir ${p.nombre} al carrito">
+                <i class="bi bi-plus-lg"></i>
+              </button>
+            </div>
             <div class="card-body">
               <h5 class="card-title">${p.nombre}</h5>
               <p class="card-text small text-muted">${p.descripcion || ''}</p>
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="fw-bold fs-5">${parseFloat(p.precio).toFixed(2)} CUP</span>
-                <button class="btn btn-amarillo btn-sm" onclick="agregarAlCarrito('${p.id}')" ${horarioAbierto ? '' : 'disabled'}>
-                  <i class="bi bi-plus-circle"></i> Añadir
-                </button>
-              </div>
-              ${p.permite_extras ? '<small class="text-muted"><i class="bi bi-chat-dots"></i> Puedes añadir extras en el carrito</small>' : ''}
+              <span class="precio-pill">${parseFloat(p.precio).toFixed(2)} CUP</span>
+              ${p.permite_extras ? '<div class="mt-2"><small class="text-muted"><i class="bi bi-chat-dots"></i> Puedes añadir extras en el carrito</small></div>' : ''}
             </div>
           </div>
         </div>
@@ -515,19 +562,19 @@
         html += `
           <div class="col">
             <div class="card card-producto h-100">
-              <div class="producto-sin-foto"><i class="bi bi-star-fill"></i></div>
+              <div class="producto-media">
+                <div class="producto-sin-foto"><i class="bi bi-star-fill"></i></div>
+                <span class="badge-oferta">${combo.tipo_descuento === 'porcentaje' ? '-' + combo.valor_descuento + '%' : 'Oferta'}</span>
+                <button class="btn-add-flotante" onclick="agregarComboAlCarrito('${combo.id}')" ${horarioAbierto ? '' : 'disabled'} aria-label="Añadir combo ${combo.nombre} al carrito">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+              </div>
               <div class="card-body">
-                <span class="badge badge-oferta mb-2">${combo.tipo_descuento === 'porcentaje' ? '-' + combo.valor_descuento + '%' : 'Oferta'}</span>
                 <h5 class="card-title">${combo.nombre}</h5>
                 <p class="card-text small text-muted">${listaProductos}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <s class="text-muted small">${totalOriginal.toFixed(2)} CUP</s>
-                    <span class="fw-bold fs-5 ms-2">${precioFinal.toFixed(2)} CUP</span>
-                  </div>
-                  <button class="btn btn-amarillo btn-sm" onclick="agregarComboAlCarrito('${combo.id}')" ${horarioAbierto ? '' : 'disabled'}>
-                    <i class="bi bi-plus-circle"></i> Añadir
-                  </button>
+                <div class="d-flex align-items-center gap-2">
+                  <s class="text-muted small">${totalOriginal.toFixed(2)} CUP</s>
+                  <span class="precio-pill">${precioFinal.toFixed(2)} CUP</span>
                 </div>
               </div>
             </div>
