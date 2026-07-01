@@ -148,16 +148,6 @@
       font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.25);
     }
 
-    /* Mapa del punto de recogida */
-    .recogida-mapa-wrap { border-radius: 0.8rem; overflow: hidden; border: 2px solid var(--amarillo); }
-    .recogida-mapa-wrap iframe { width: 100%; height: 190px; display: block; border: 0; }
-    .recogida-info { font-size: 0.85rem; color: var(--gris-texto); margin-top: 0.5rem; }
-    .btn-como-llegar.btn-outline-dark {
-      font-size: 0.78rem; border-radius: 2rem;
-      color: var(--negro); border-color: var(--negro);
-    }
-    .btn-como-llegar.btn-outline-dark:hover { background-color: var(--amarillo); border-color: var(--amarillo); color: var(--negro); }
-
     /* Carrito: stepper de cantidad */
     .carrito-item { border: none !important; border-bottom: 1px solid var(--borde-suave) !important; padding: 0.9rem 0.25rem; }
     .stepper { display: flex; align-items: center; gap: 0.6rem; }
@@ -287,31 +277,6 @@
     <div class="offcanvas-body">
       <div id="carrito-lista" class="list-group mb-3"></div>
       <div class="mb-3">
-        <label class="form-label fw-bold">Tipo de entrega</label>
-        <select id="tipo-entrega" class="form-select" onchange="cambiarTipoEntrega()">
-          <option value="recoger">Recoger en tienda (GRATIS)</option>
-          <option value="domicilio">Domicilio</option>
-        </select>
-      </div>
-      <!-- Bloque para recoger en tienda -->
-      <div id="bloque-recoger" class="mb-3">
-        <div class="recogida-mapa-wrap">
-          <iframe
-            src="https://maps.google.com/maps?q=20.8899012,-76.268574&z=15&output=embed"
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-            title="Ubicación de recogida El ComeCome">
-          </iframe>
-        </div>
-        <div class="recogida-info d-flex justify-content-between align-items-center flex-wrap gap-2">
-          <span><i class="bi bi-geo-alt-fill text-warning"></i> El ComeCome, Holguín</span>
-          <a href="https://maps.app.goo.gl/B91nN9nquHnSKS4PA" target="_blank" rel="noopener" class="btn btn-sm btn-outline-dark btn-como-llegar">
-            <i class="bi bi-signpost-2"></i> Cómo llegar
-          </a>
-        </div>
-      </div>
-      <!-- Bloque para domicilio -->
-      <div id="bloque-domicilio" class="mb-3 d-none">
         <label class="form-label fw-bold">Reparto</label>
         <select id="reparto-select" class="form-select" onchange="actualizarCarrito()">
           <option value="">Selecciona tu reparto...</option>
@@ -377,7 +342,6 @@
     let carrito = [];
     let checkoutModalInstance = null;
     let horarioAbierto = true;
-    let tipoEntrega = 'recoger';
 
     document.addEventListener('DOMContentLoaded', async () => {
       const modalEl = document.getElementById('checkoutModal');
@@ -444,21 +408,6 @@
           select.appendChild(opt);
         });
       }
-    }
-
-    function cambiarTipoEntrega() {
-      tipoEntrega = document.getElementById('tipo-entrega').value;
-      const bloqueRecoger = document.getElementById('bloque-recoger');
-      const bloqueDomicilio = document.getElementById('bloque-domicilio');
-      if (tipoEntrega === 'recoger') {
-        bloqueRecoger.classList.remove('d-none');
-        bloqueDomicilio.classList.add('d-none');
-        document.getElementById('reparto-select').value = '';
-      } else {
-        bloqueRecoger.classList.add('d-none');
-        bloqueDomicilio.classList.remove('d-none');
-      }
-      actualizarCarrito();
     }
 
     function renderCategorias() {
@@ -719,12 +668,10 @@
       `).join('') || `<div class="carrito-vacio"><i class="bi bi-basket"></i><p class="mt-2 mb-0 fw-semibold">Tu carrito está vacío</p><small>Añade algo rico de la carta 🍔</small></div>`;
 
       const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+      const repartoSelect = document.getElementById('reparto-select');
       let envio = 0;
-      if (tipoEntrega === 'domicilio') {
-        const repartoSelect = document.getElementById('reparto-select');
-        if (repartoSelect && repartoSelect.selectedOptions[0]?.dataset.precio) {
-          envio = parseFloat(repartoSelect.selectedOptions[0].dataset.precio);
-        }
+      if (repartoSelect && repartoSelect.selectedOptions[0]?.dataset.precio) {
+        envio = parseFloat(repartoSelect.selectedOptions[0].dataset.precio);
       }
       const total = subtotal + envio;
       totalSpan.textContent = total.toFixed(2) + ' CUP';
@@ -737,9 +684,8 @@
       }
       countBadge.textContent = nuevoConteo;
 
-      // Habilitar botón si hay productos y, en caso de domicilio, hay reparto seleccionado
-      const repartoOk = tipoEntrega === 'recoger' || (tipoEntrega === 'domicilio' && document.getElementById('reparto-select')?.value);
-      btnCheckout.disabled = carrito.length === 0 || !repartoOk;
+      // Habilitar botón si hay productos y se ha seleccionado un reparto
+      btnCheckout.disabled = carrito.length === 0 || !repartoSelect?.value;
     }
 
     function actualizarExtras(index, valor) {
@@ -772,12 +718,9 @@
       }
       errorDiv.style.display = 'none';
 
-      let zonaTexto = 'Recoger en tienda';
-      if (tipoEntrega === 'domicilio') {
-        const repartoSelect = document.getElementById('reparto-select');
-        const opcion = repartoSelect.options[repartoSelect.selectedIndex];
-        zonaTexto = opcion && opcion.value ? opcion.textContent : 'Domicilio';
-      }
+      const repartoSelect = document.getElementById('reparto-select');
+      const opcion = repartoSelect.options[repartoSelect.selectedIndex];
+      const zonaTexto = opcion && opcion.value ? opcion.textContent : 'Domicilio';
 
       const totalPedido = parseFloat(document.getElementById('total-pedido').textContent);
 
