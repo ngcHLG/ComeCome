@@ -168,6 +168,9 @@
 
     #total-pedido { color: var(--amarillo-oscuro); font-size: 1.15rem; }
 
+    .desglose { font-size: 0.9rem; color: var(--gris-texto); }
+    .desglose span { color: var(--negro); font-weight: 500; }
+
     /* Skeletons de carga */
     .skeleton {
       background: linear-gradient(90deg, #ececec 25%, #f6f6f6 50%, #ececec 75%);
@@ -276,15 +279,38 @@
     </div>
     <div class="offcanvas-body">
       <div id="carrito-lista" class="list-group mb-3"></div>
+
+      <!-- Método de pago (antes del reparto) -->
+      <div class="mb-3">
+        <label class="form-label fw-bold">Método de pago</label>
+        <select id="metodo-pago" class="form-select" onchange="actualizarCarrito()">
+          <option value="efectivo">Efectivo</option>
+          <option value="transferencia">Transferencia</option>
+        </select>
+        <small id="recargo-info" class="text-muted d-none"></small>
+      </div>
+
+      <!-- Reparto -->
       <div class="mb-3">
         <label class="form-label fw-bold">Reparto</label>
         <select id="reparto-select" class="form-select" onchange="actualizarCarrito()">
           <option value="">Selecciona tu reparto...</option>
         </select>
       </div>
+
+      <!-- Desglose y total -->
+      <div class="desglose mb-1">
+        Subtotal: <span id="subtotal-carrito">0.00</span> CUP
+      </div>
+      <div id="recargo-desglose" class="desglose mb-1 d-none">
+        Recargo transf.: <span id="recargo-aplicado">0.00</span> CUP
+      </div>
+      <div id="envio-desglose" class="desglose mb-1 d-none">
+        Envío: <span id="envio-aplicado">0.00</span> CUP
+      </div>
       <div class="d-flex justify-content-between fw-bold border-top pt-2">
         <span>Total:</span>
-        <span id="total-pedido">0,00 CUP</span>
+        <span id="total-pedido">0.00 CUP</span>
       </div>
       <button id="btn-checkout" class="btn btn-amarillo w-100 mt-3" disabled>
         <i class="bi bi-check-circle"></i> Realizar pedido
@@ -309,7 +335,6 @@
             <div class="mb-3"><label class="form-label">Teléfono</label><input type="tel" class="form-control" id="telefono" required></div>
             <div class="mb-3"><label class="form-label">Dirección completa</label><textarea class="form-control" id="direccion" rows="2" required></textarea></div>
             <div class="mb-3"><label class="form-label">Punto de referencia <small class="text-muted">(opcional)</small></label><textarea class="form-control" id="referencia" rows="1" placeholder="Ej: detrás de la gasolinera..."></textarea></div>
-            <div class="mb-3"><label class="form-label">Método de pago</label><select class="form-select" id="metodo-pago" required><option value="">Selecciona...</option><option value="transferencia">Transferencia</option><option value="efectivo">Efectivo al entregar</option></select></div>
           </form>
         </div>
         <div class="modal-footer">
@@ -342,11 +367,13 @@
     let carrito = [];
     let checkoutModalInstance = null;
     let horarioAbierto = true;
+    let recargoTransferencia = 0; // porcentaje
 
     document.addEventListener('DOMContentLoaded', async () => {
       const modalEl = document.getElementById('checkoutModal');
       if (modalEl) checkoutModalInstance = new bootstrap.Modal(modalEl);
 
+      await cargarConfiguracion();
       await cargarCategorias();
       await cargarProductos();
       await verificarCombosActivos();
@@ -354,6 +381,12 @@
       renderCategorias();
       await verificarHorario();
       renderProductos();
+
+      // Mostrar/ocultar recargo al cambiar método de pago
+      document.getElementById('metodo-pago').addEventListener('change', () => {
+        actualizarInfoRecargo();
+        actualizarCarrito();
+      });
 
       setInterval(async () => {
         await verificarHorario();
@@ -364,6 +397,28 @@
         }
       }, 60000);
     });
+
+    async function cargarConfiguracion() {
+      const { data, error } = await supabaseClient
+        .from('configuracion')
+        .select('recargo_transferencia')
+        .single();
+      if (data) {
+        recargoTransferencia = parseFloat(data.recargo_transferencia) || 0;
+        actualizarInfoRecargo();
+      }
+    }
+
+    function actualizarInfoRecargo() {
+      const metodo = document.getElementById('metodo-pago').value;
+      const info = document.getElementById('recargo-info');
+      if (metodo === 'transferencia' && recargoTransferencia > 0) {
+        info.textContent = `Se aplica un recargo del ${recargoTransferencia}% sobre el subtotal.`;
+        info.classList.remove('d-none');
+      } else {
+        info.classList.add('d-none');
+      }
+    }
 
     async function cargarCategorias() {
       const { data } = await supabaseClient
@@ -392,22 +447,29 @@
     }
 
     async function cargarRepartosEnvio() {
-      const { data } = await supabaseClient
+      const select = document.getElementById('reparto-select');
+      const { data, error } = await supabaseClient
         .from('repartos')
         .select('*')
         .eq('activo', true)
         .order('nombre');
-      const select = document.getElementById('reparto-select');
+
       select.innerHTML = '<option value="">Selecciona tu reparto...</option>';
-      if (data) {
-        data.forEach(r => {
-          const opt = document.createElement('option');
-          opt.value = r.id;
-          opt.dataset.precio = r.precio;
-          opt.textContent = `${r.nombre} (${r.distancia}) +${parseFloat(r.precio).toFixed(2)} CUP`;
-          select.appendChild(opt);
-        });
+      if (error) {
+        select.innerHTML = '<option value="">Error al cargar repartos</option>';
+        return;
       }
+      if (!data || data.length === 0) {
+        select.innerHTML = '<option value="">No hay repartos disponibles</option>';
+        return;
+      }
+      data.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.dataset.precio = r.precio;
+        opt.textContent = `${r.nombre} (${r.distancia}) +${parseFloat(r.precio).toFixed(2)} CUP`;
+        select.appendChild(opt);
+      });
     }
 
     function renderCategorias() {
@@ -468,7 +530,6 @@
               <h5 class="card-title">${p.nombre}</h5>
               <p class="card-text small text-muted">${p.descripcion || ''}</p>
               <span class="precio-pill">${parseFloat(p.precio).toFixed(2)} CUP</span>
-              ${p.permite_extras ? '<div class="mt-2"><small class="text-muted"><i class="bi bi-chat-dots"></i> Puedes añadir extras en el carrito</small></div>' : ''}
             </div>
           </div>
         </div>
@@ -662,18 +723,37 @@
               </div>
               <button class="btn btn-sm text-danger" onclick="eliminarDelCarrito(${index})" title="Eliminar"><i class="bi bi-trash"></i></button>
             </div>
-            ${!item.esCombo && item.permiteExtras ? `<input type="text" class="form-control form-control-sm mt-2" placeholder="Extras (ej: sin cebolla)" value="${item.extras}" oninput="actualizarExtras(${index}, this.value)">` : ''}
+            ${!item.esCombo && item.permiteExtras ? `<input type="text" class="form-control form-control-sm mt-2" placeholder="Instrucciones especiales" value="${item.extras}" oninput="actualizarExtras(${index}, this.value)">` : ''}
           </div>
         </div>
       `).join('') || `<div class="carrito-vacio"><i class="bi bi-basket"></i><p class="mt-2 mb-0 fw-semibold">Tu carrito está vacío</p><small>Añade algo rico de la carta 🍔</small></div>`;
 
       const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+      document.getElementById('subtotal-carrito').textContent = subtotal.toFixed(2);
+
+      // Calcular recargo
+      const metodoPago = document.getElementById('metodo-pago').value;
+      let recargo = 0;
+      if (metodoPago === 'transferencia' && recargoTransferencia > 0) {
+        recargo = subtotal * (recargoTransferencia / 100);
+        document.getElementById('recargo-aplicado').textContent = recargo.toFixed(2);
+        document.getElementById('recargo-desglose').classList.remove('d-none');
+      } else {
+        document.getElementById('recargo-desglose').classList.add('d-none');
+      }
+
+      // Calcular envío
       const repartoSelect = document.getElementById('reparto-select');
       let envio = 0;
       if (repartoSelect && repartoSelect.selectedOptions[0]?.dataset.precio) {
         envio = parseFloat(repartoSelect.selectedOptions[0].dataset.precio);
+        document.getElementById('envio-aplicado').textContent = envio.toFixed(2);
+        document.getElementById('envio-desglose').classList.remove('d-none');
+      } else {
+        document.getElementById('envio-desglose').classList.add('d-none');
       }
-      const total = subtotal + envio;
+
+      const total = subtotal + recargo + envio;
       totalSpan.textContent = total.toFixed(2) + ' CUP';
 
       const nuevoConteo = carrito.reduce((sum, item) => sum + item.cantidad, 0);
@@ -684,7 +764,7 @@
       }
       countBadge.textContent = nuevoConteo;
 
-      // Habilitar botón si hay productos y se ha seleccionado un reparto
+      // Habilitar botón si hay productos y reparto seleccionado
       btnCheckout.disabled = carrito.length === 0 || !repartoSelect?.value;
     }
 
@@ -707,21 +787,20 @@
       const telefono = document.getElementById('telefono').value.trim();
       const direccion = document.getElementById('direccion').value.trim();
       const referencia = document.getElementById('referencia').value.trim();
-      const metodo = document.getElementById('metodo-pago').value;
 
       const errorDiv = document.getElementById('checkout-error');
       const errorText = document.getElementById('error-text');
-      if (!nombre || !telefono || !direccion || !metodo) {
+      if (!nombre || !telefono || !direccion) {
         errorText.textContent = 'Completa los campos obligatorios.';
         errorDiv.style.display = 'block';
         return;
       }
       errorDiv.style.display = 'none';
 
+      const metodoPago = document.getElementById('metodo-pago').value;
       const repartoSelect = document.getElementById('reparto-select');
       const opcion = repartoSelect.options[repartoSelect.selectedIndex];
       const zonaTexto = opcion && opcion.value ? opcion.textContent : 'Domicilio';
-
       const totalPedido = parseFloat(document.getElementById('total-pedido').textContent);
 
       const { error: errorPedido } = await supabaseClient
@@ -731,7 +810,7 @@
           telefono,
           direccion,
           referencia: referencia || null,
-          metodo_pago: metodo,
+          metodo_pago: metodoPago,
           zona: zonaTexto,
           total: totalPedido,
           items: carrito.map(item => ({
@@ -750,7 +829,7 @@
         return;
       }
 
-      // ─── ENVIAR NOTIFICACIÓN NTFY CON TODA LA INFORMACIÓN ───
+      // ─── ENVIAR NOTIFICACIÓN NTFY ───
       const productosTexto = carrito.map(item => {
         const extra = item.extras ? ` (${item.extras})` : '';
         return `${item.cantidad}x ${item.nombre}${extra} — ${(item.precio * item.cantidad).toFixed(2)} CUP`;
@@ -762,7 +841,7 @@
 📞 ${telefono}
 📍 ${direccion}${referencia ? '\n📌 Ref: ' + referencia : ''}
 🛵 Entrega: ${zonaTexto}
-💳 Pago: ${metodo}
+💳 Pago: ${metodoPago}
 ────────────────
 ${productosTexto}
 ────────────────
