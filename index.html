@@ -171,6 +171,33 @@
     .desglose { font-size: 0.9rem; color: var(--gris-texto); }
     .desglose span { color: var(--negro); font-weight: 500; }
 
+    /* Selector de reparto inteligente */
+    .reparto-autocomplete { position: relative; }
+    .reparto-sugerencias {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 10;
+      background: #fff; border: 2px solid var(--amarillo); border-radius: 0.5rem;
+      max-height: 200px; overflow-y: auto; box-shadow: var(--sombra-card);
+      display: none;
+    }
+    .reparto-sugerencias.show { display: block; }
+    .reparto-opcion {
+      padding: 0.6rem 1rem; cursor: pointer; border-bottom: 1px solid var(--borde-suave);
+      display: flex; justify-content: space-between; align-items: center;
+      transition: background 0.1s;
+    }
+    .reparto-opcion:hover, .reparto-opcion.activa { background: var(--amarillo); color: var(--negro); }
+    .reparto-opcion .nombre { font-weight: 600; }
+    .reparto-opcion .precio { font-weight: 700; }
+
+    #reparto-input { border-radius: 0.5rem; }
+    #reparto-input:focus { border-color: var(--amarillo); box-shadow: 0 0 0 0.2rem rgba(252,224,41,0.25); }
+
+    .reparto-seleccionado {
+      background: #f8f9fa; border: 1px solid var(--amarillo); border-radius: 0.5rem;
+      padding: 0.6rem 1rem; display: flex; justify-content: space-between; align-items: center;
+    }
+    .reparto-seleccionado .btn-limpiar { color: var(--amarillo-oscuro); cursor: pointer; font-size: 1.2rem; }
+
     /* Skeletons de carga */
     .skeleton {
       background: linear-gradient(90deg, #ececec 25%, #f6f6f6 50%, #ececec 75%);
@@ -290,12 +317,19 @@
         <small id="recargo-info" class="text-muted d-none"></small>
       </div>
 
-      <!-- Reparto -->
+      <!-- Reparto (selector inteligente) -->
       <div class="mb-3">
         <label class="form-label fw-bold">Reparto</label>
-        <select id="reparto-select" class="form-select" onchange="actualizarCarrito()">
-          <option value="">Selecciona tu reparto...</option>
-        </select>
+        <div class="reparto-autocomplete">
+          <input type="text" id="reparto-input" class="form-control" placeholder="Escribe tu zona..." autocomplete="off" oninput="filtrarRepartos()" onfocus="mostrarSugerencias()">
+          <input type="hidden" id="reparto-id" value="">
+          <input type="hidden" id="reparto-precio" value="">
+          <div class="reparto-sugerencias" id="reparto-sugerencias"></div>
+        </div>
+        <div id="reparto-seleccionado" class="reparto-seleccionado d-none mt-2">
+          <span id="reparto-seleccionado-texto"></span>
+          <i class="bi bi-x-circle btn-limpiar" onclick="limpiarReparto()" title="Quitar reparto"></i>
+        </div>
       </div>
 
       <!-- Desglose y total -->
@@ -357,7 +391,6 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_e68llCL_CYuf2M9TyVcdWA_HdMDYpVF';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ⚠️ CAMBIA ESTO POR TU TOPIC REAL DE NTFY
     const NTFY_TOPIC = 'comecome_8f3js9f83jf93jf';
 
     let todasCategorias = [];
@@ -367,7 +400,8 @@
     let carrito = [];
     let checkoutModalInstance = null;
     let horarioAbierto = true;
-    let recargoTransferencia = 0; // porcentaje
+    let recargoTransferencia = 0;
+    let repartosDisponibles = [];
 
     document.addEventListener('DOMContentLoaded', async () => {
       const modalEl = document.getElementById('checkoutModal');
@@ -382,10 +416,16 @@
       await verificarHorario();
       renderProductos();
 
-      // Mostrar/ocultar recargo al cambiar método de pago
       document.getElementById('metodo-pago').addEventListener('change', () => {
         actualizarInfoRecargo();
         actualizarCarrito();
+      });
+
+      // Cerrar sugerencias al hacer clic fuera
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.reparto-autocomplete')) {
+          document.getElementById('reparto-sugerencias').classList.remove('show');
+        }
       });
 
       setInterval(async () => {
@@ -399,7 +439,7 @@
     });
 
     async function cargarConfiguracion() {
-      const { data, error } = await supabaseClient
+      const { data } = await supabaseClient
         .from('configuracion')
         .select('recargo_transferencia')
         .single();
@@ -421,73 +461,84 @@
     }
 
     async function cargarCategorias() {
-      const { data } = await supabaseClient
-        .from('categorias')
-        .select('*')
-        .order('nombre');
+      const { data } = await supabaseClient.from('categorias').select('*').order('nombre');
       if (data) todasCategorias = data;
     }
 
     async function cargarProductos() {
-      const { data } = await supabaseClient
-        .from('productos')
-        .select('*, categorias(nombre)')
-        .eq('activo', true)
-        .order('nombre');
+      const { data } = await supabaseClient.from('productos').select('*, categorias(nombre)').eq('activo', true).order('nombre');
       if (data) todosProductos = data;
     }
 
     async function verificarCombosActivos() {
-      const { data } = await supabaseClient
-        .from('combos')
-        .select('id')
-        .eq('activo', true)
-        .limit(1);
+      const { data } = await supabaseClient.from('combos').select('id').eq('activo', true).limit(1);
       hayCombosActivos = data && data.length > 0;
     }
 
     async function cargarRepartosEnvio() {
-      const select = document.getElementById('reparto-select');
-      const { data, error } = await supabaseClient
-        .from('repartos')
-        .select('*')
-        .eq('activo', true)
-        .order('nombre');
+      const { data, error } = await supabaseClient.from('repartos').select('*').eq('activo', true).order('nombre');
+      if (!error && data) repartosDisponibles = data;
+      else repartosDisponibles = [];
+    }
 
-      select.innerHTML = '<option value="">Selecciona tu reparto...</option>';
-      if (error) {
-        select.innerHTML = '<option value="">Error al cargar repartos</option>';
-        return;
+    function mostrarSugerencias() {
+      const input = document.getElementById('reparto-input');
+      const sugerencias = document.getElementById('reparto-sugerencias');
+      if (repartosDisponibles.length > 0 && !document.getElementById('reparto-id').value) {
+        filtrarRepartos();
       }
-      if (!data || data.length === 0) {
-        select.innerHTML = '<option value="">No hay repartos disponibles</option>';
-        return;
+    }
+
+    function filtrarRepartos() {
+      const input = document.getElementById('reparto-input');
+      const sugerencias = document.getElementById('reparto-sugerencias');
+      const texto = input.value.toLowerCase().trim();
+
+      let filtrados = repartosDisponibles;
+      if (texto) {
+        filtrados = repartosDisponibles.filter(r => r.nombre.toLowerCase().includes(texto));
       }
-      data.forEach(r => {
-        const opt = document.createElement('option');
-        opt.value = r.id;
-        opt.dataset.precio = r.precio;
-        opt.textContent = `${r.nombre} (${r.distancia}) +${parseFloat(r.precio).toFixed(2)} CUP`;
-        select.appendChild(opt);
-      });
+
+      if (filtrados.length === 0) {
+        sugerencias.innerHTML = '<div class="reparto-opcion text-muted">No se encontraron repartos</div>';
+      } else {
+        sugerencias.innerHTML = filtrados.map(r => `
+          <div class="reparto-opcion" onclick="seleccionarReparto('${r.id}', '${r.nombre}', ${r.precio})">
+            <span class="nombre">${r.nombre}</span>
+            <span class="precio">+${parseFloat(r.precio).toFixed(2)} CUP</span>
+          </div>
+        `).join('');
+      }
+      sugerencias.classList.add('show');
+    }
+
+    function seleccionarReparto(id, nombre, precio) {
+      document.getElementById('reparto-id').value = id;
+      document.getElementById('reparto-precio').value = precio;
+      document.getElementById('reparto-input').value = '';
+      document.getElementById('reparto-sugerencias').classList.remove('show');
+      document.getElementById('reparto-seleccionado-texto').textContent = `${nombre} +${parseFloat(precio).toFixed(2)} CUP`;
+      document.getElementById('reparto-seleccionado').classList.remove('d-none');
+      document.getElementById('reparto-input').classList.add('d-none');
+      actualizarCarrito();
+    }
+
+    function limpiarReparto() {
+      document.getElementById('reparto-id').value = '';
+      document.getElementById('reparto-precio').value = '';
+      document.getElementById('reparto-input').value = '';
+      document.getElementById('reparto-seleccionado').classList.add('d-none');
+      document.getElementById('reparto-input').classList.remove('d-none');
+      document.getElementById('reparto-sugerencias').classList.remove('show');
+      actualizarCarrito();
     }
 
     function renderCategorias() {
       const container = document.getElementById('categorias-container');
       let html = `<button class="btn-categoria active" onclick="filtrarPorCategoria('todas', this)">Todas</button>`;
-
-      if (hayCombosActivos) {
-        html += `<button class="btn-categoria" onclick="filtrarPorCategoria('combos', this)">Combos</button>`;
-      }
-
-      const categoriasConProductos = todasCategorias.filter(cat =>
-        todosProductos.some(prod => prod.categoria_id === cat.id)
-      );
-
-      categoriasConProductos.forEach(cat => {
-        html += `<button class="btn-categoria" onclick="filtrarPorCategoria('${cat.id}', this)">${cat.nombre}</button>`;
-      });
-
+      if (hayCombosActivos) html += `<button class="btn-categoria" onclick="filtrarPorCategoria('combos', this)">Combos</button>`;
+      const categoriasConProductos = todasCategorias.filter(cat => todosProductos.some(prod => prod.categoria_id === cat.id));
+      categoriasConProductos.forEach(cat => { html += `<button class="btn-categoria" onclick="filtrarPorCategoria('${cat.id}', this)">${cat.nombre}</button>`; });
       container.innerHTML = html;
     }
 
@@ -495,210 +546,77 @@
       categoriaActiva = catId;
       document.querySelectorAll('.btn-categoria').forEach(btn => btn.classList.remove('active'));
       el.classList.add('active');
-      if (catId === 'combos') {
-        cargarCombosPublicos();
-      } else {
-        renderProductos();
-      }
+      if (catId === 'combos') cargarCombosPublicos(); else renderProductos();
     }
 
     function renderProductos() {
       const container = document.getElementById('productos-container');
-      let productosFiltrados = todosProductos;
-      if (categoriaActiva !== 'todas') {
-        productosFiltrados = todosProductos.filter(p => p.categoria_id === categoriaActiva);
-      }
-
-      if (productosFiltrados.length === 0) {
-        container.innerHTML = '<p class="text-muted">No hay productos en esta categoría.</p>';
-        return;
-      }
-
-      container.innerHTML = productosFiltrados.map(p => `
-        <div class="col">
-          <div class="card card-producto h-100">
-            <div class="producto-media">
-              ${p.foto_url
-                ? `<img src="${p.foto_url}" class="card-img-top" alt="${p.nombre}">`
-                : `<div class="producto-sin-foto"><i class="bi bi-image"></i></div>`
-              }
-              <button class="btn-add-flotante" onclick="agregarAlCarrito('${p.id}')" ${horarioAbierto ? '' : 'disabled'} aria-label="Añadir ${p.nombre} al carrito">
-                <i class="bi bi-plus-lg"></i>
-              </button>
-            </div>
-            <div class="card-body">
-              <h5 class="card-title">${p.nombre}</h5>
-              <p class="card-text small text-muted">${p.descripcion || ''}</p>
-              <span class="precio-pill">${parseFloat(p.precio).toFixed(2)} CUP</span>
-            </div>
-          </div>
-        </div>
-      `).join('');
+      let prods = categoriaActiva === 'todas' ? todosProductos : todosProductos.filter(p => p.categoria_id === categoriaActiva);
+      if (prods.length === 0) { container.innerHTML = '<p class="text-muted">No hay productos en esta categoría.</p>'; return; }
+      container.innerHTML = prods.map(p => `
+        <div class="col"><div class="card card-producto h-100"><div class="producto-media">${p.foto_url ? `<img src="${p.foto_url}" class="card-img-top" alt="${p.nombre}">` : `<div class="producto-sin-foto"><i class="bi bi-image"></i></div>`}<button class="btn-add-flotante" onclick="agregarAlCarrito('${p.id}')" ${horarioAbierto ? '' : 'disabled'} aria-label="Añadir ${p.nombre}"><i class="bi bi-plus-lg"></i></button></div><div class="card-body"><h5 class="card-title">${p.nombre}</h5><p class="card-text small text-muted">${p.descripcion || ''}</p><span class="precio-pill">${parseFloat(p.precio).toFixed(2)} CUP</span></div></div></div>`).join('');
     }
 
     async function cargarCombosPublicos() {
       const container = document.getElementById('productos-container');
       container.innerHTML = '<div class="col"><div class="skeleton skeleton-card"></div></div><div class="col"><div class="skeleton skeleton-card"></div></div><div class="col"><div class="skeleton skeleton-card"></div></div>';
-
-      const { data: combos, error } = await supabaseClient
-        .from('combos')
-        .select('*')
-        .eq('activo', true)
-        .order('nombre');
-
-      if (error || !combos || combos.length === 0) {
-        container.innerHTML = '<p class="text-muted">No hay combos disponibles.</p>';
-        return;
-      }
-
+      const { data: combos, error } = await supabaseClient.from('combos').select('*').eq('activo', true).order('nombre');
+      if (error || !combos || combos.length === 0) { container.innerHTML = '<p class="text-muted">No hay combos disponibles.</p>'; return; }
       let html = '';
       for (const combo of combos) {
-        const { data: items } = await supabaseClient
-          .from('combo_items')
-          .select('*, productos(nombre, precio)')
-          .eq('combo_id', combo.id);
-
+        const { data: items } = await supabaseClient.from('combo_items').select('*, productos(nombre, precio)').eq('combo_id', combo.id);
         const totalOriginal = (items || []).reduce((s, i) => s + (parseFloat(i.productos.precio) * i.cantidad), 0);
         let precioFinal = totalOriginal;
-        if (combo.tipo_descuento === 'porcentaje') {
-          precioFinal = totalOriginal * (1 - combo.valor_descuento / 100);
-        } else if (combo.tipo_descuento === 'fijo') {
-          precioFinal = parseFloat(combo.valor_descuento);
-        }
-
+        if (combo.tipo_descuento === 'porcentaje') precioFinal = totalOriginal * (1 - combo.valor_descuento / 100);
+        else if (combo.tipo_descuento === 'fijo') precioFinal = parseFloat(combo.valor_descuento);
         const listaProductos = (items || []).map(i => `${i.cantidad}x ${i.productos.nombre}`).join(', ');
-
-        html += `
-          <div class="col">
-            <div class="card card-producto h-100">
-              <div class="producto-media">
-                <div class="producto-sin-foto"><i class="bi bi-star-fill"></i></div>
-                <span class="badge-oferta">${combo.tipo_descuento === 'porcentaje' ? '-' + combo.valor_descuento + '%' : 'Oferta'}</span>
-                <button class="btn-add-flotante" onclick="agregarComboAlCarrito('${combo.id}')" ${horarioAbierto ? '' : 'disabled'} aria-label="Añadir combo ${combo.nombre} al carrito">
-                  <i class="bi bi-plus-lg"></i>
-                </button>
-              </div>
-              <div class="card-body">
-                <h5 class="card-title">${combo.nombre}</h5>
-                <p class="card-text small text-muted">${listaProductos}</p>
-                <div class="d-flex align-items-center gap-2">
-                  <s class="text-muted small">${totalOriginal.toFixed(2)} CUP</s>
-                  <span class="precio-pill">${precioFinal.toFixed(2)} CUP</span>
-                </div>
-              </div>
-            </div>
-          </div>`;
+        html += `<div class="col"><div class="card card-producto h-100"><div class="producto-media"><div class="producto-sin-foto"><i class="bi bi-star-fill"></i></div><span class="badge-oferta">${combo.tipo_descuento === 'porcentaje' ? '-' + combo.valor_descuento + '%' : 'Oferta'}</span><button class="btn-add-flotante" onclick="agregarComboAlCarrito('${combo.id}')" ${horarioAbierto ? '' : 'disabled'}><i class="bi bi-plus-lg"></i></button></div><div class="card-body"><h5 class="card-title">${combo.nombre}</h5><p class="card-text small text-muted">${listaProductos}</p><div class="d-flex align-items-center gap-2"><s class="text-muted small">${totalOriginal.toFixed(2)} CUP</s><span class="precio-pill">${precioFinal.toFixed(2)} CUP</span></div></div></div></div>`;
       }
       container.innerHTML = html;
     }
 
     async function verificarHorario() {
-      const ahora = new Date();
-      const diaSemana = ahora.getDay();
-      const horaActual = ahora.getHours() + ahora.getMinutes() / 60;
-
-      const { data } = await supabaseClient
-        .from('horarios')
-        .select('abierto, hora_apertura, hora_cierre')
-        .eq('dia_semana', diaSemana)
-        .single();
-
+      const ahora = new Date(); const diaSemana = ahora.getDay(); const horaActual = ahora.getHours() + ahora.getMinutes() / 60;
+      const { data } = await supabaseClient.from('horarios').select('abierto, hora_apertura, hora_cierre').eq('dia_semana', diaSemana).single();
       let textoHorario = 'Cerrado hoy.';
-
       if (data) {
-        if (data.abierto) {
-          horarioAbierto = true;
-          textoHorario = '';
-        } else if (data.hora_apertura && data.hora_cierre && data.hora_apertura !== data.hora_cierre) {
-          const [hA, mA] = data.hora_apertura.split(':').map(Number);
-          const [hC, mC] = data.hora_cierre.split(':').map(Number);
-          const apertura = hA + mA / 60;
-          const cierre = hC + mC / 60;
+        if (data.abierto) { horarioAbierto = true; textoHorario = ''; }
+        else if (data.hora_apertura && data.hora_cierre && data.hora_apertura !== data.hora_cierre) {
+          const [hA, mA] = data.hora_apertura.split(':').map(Number); const [hC, mC] = data.hora_cierre.split(':').map(Number);
+          const apertura = hA + mA / 60; const cierre = hC + mC / 60;
           horarioAbierto = horaActual >= apertura && horaActual < cierre;
-
-          if (!horarioAbierto) {
-            textoHorario = `Los pedidos en línea están disponibles de ${data.hora_apertura.slice(0,5)} a ${data.hora_cierre.slice(0,5)}.`;
-          }
-        } else {
-          horarioAbierto = false;
-          textoHorario = 'Cerrado hoy.';
-        }
-      } else {
-        horarioAbierto = false;
-        textoHorario = 'Cerrado hoy.';
-      }
-
+          if (!horarioAbierto) textoHorario = `Los pedidos en línea están disponibles de ${data.hora_apertura.slice(0,5)} a ${data.hora_cierre.slice(0,5)}.`;
+        } else { horarioAbierto = false; textoHorario = 'Cerrado hoy.'; }
+      } else { horarioAbierto = false; textoHorario = 'Cerrado hoy.'; }
       document.getElementById('horario-aviso').classList.toggle('d-none', horarioAbierto);
       document.getElementById('horario-texto').textContent = textoHorario;
     }
 
     function agregarAlCarrito(idProducto) {
-      const producto = todosProductos.find(p => p.id === idProducto);
-      if (!producto) return;
+      const producto = todosProductos.find(p => p.id === idProducto); if (!producto) return;
       const grupo = carrito.find(item => item.id === idProducto && !item.esCombo);
-      if (grupo) {
-        grupo.cantidad++;
-      } else {
-        carrito.push({
-          id: producto.id,
-          nombre: producto.nombre,
-          precio: parseFloat(producto.precio),
-          foto: producto.foto_url,
-          permiteExtras: producto.permite_extras,
-          cantidad: 1,
-          extras: '',
-          esCombo: false
-        });
-      }
+      if (grupo) grupo.cantidad++;
+      else carrito.push({ id: producto.id, nombre: producto.nombre, precio: parseFloat(producto.precio), foto: producto.foto_url, permiteExtras: producto.permite_extras, cantidad: 1, extras: '', esCombo: false });
       actualizarCarrito();
     }
 
     async function agregarComboAlCarrito(comboId) {
-      const { data: combo } = await supabaseClient
-        .from('combos')
-        .select('*')
-        .eq('id', comboId)
-        .single();
-      if (!combo) return;
-
-      const { data: items } = await supabaseClient
-        .from('combo_items')
-        .select('*, productos(nombre, precio)')
-        .eq('combo_id', comboId);
-
+      const { data: combo } = await supabaseClient.from('combos').select('*').eq('id', comboId).single(); if (!combo) return;
+      const { data: items } = await supabaseClient.from('combo_items').select('*, productos(nombre, precio)').eq('combo_id', comboId);
       const totalOriginal = (items || []).reduce((s, i) => s + (parseFloat(i.productos.precio) * i.cantidad), 0);
       let precioFinal = totalOriginal;
-      if (combo.tipo_descuento === 'porcentaje') {
-        precioFinal = totalOriginal * (1 - combo.valor_descuento / 100);
-      } else if (combo.tipo_descuento === 'fijo') {
-        precioFinal = parseFloat(combo.valor_descuento);
-      }
-
-      const comboItem = {
-        id: combo.id,
-        nombre: combo.nombre,
-        precio: precioFinal,
-        permiteExtras: false,
-        cantidad: 1,
-        extras: '',
-        esCombo: true
-      };
-
+      if (combo.tipo_descuento === 'porcentaje') precioFinal = totalOriginal * (1 - combo.valor_descuento / 100);
+      else if (combo.tipo_descuento === 'fijo') precioFinal = parseFloat(combo.valor_descuento);
+      const comboItem = { id: combo.id, nombre: combo.nombre, precio: precioFinal, permiteExtras: false, cantidad: 1, extras: '', esCombo: true };
       const grupo = carrito.find(item => item.id === combo.id && item.esCombo);
-      if (grupo) {
-        grupo.cantidad++;
-      } else {
-        carrito.push(comboItem);
-      }
+      if (grupo) grupo.cantidad++; else carrito.push(comboItem);
       actualizarCarrito();
     }
 
     function cambiarCantidad(index, delta) {
       if (index < 0 || index >= carrito.length) return;
       carrito[index].cantidad += delta;
-      if (carrito[index].cantidad <= 0) {
-        carrito.splice(index, 1);
-      }
+      if (carrito[index].cantidad <= 0) carrito.splice(index, 1);
       actualizarCarrito();
     }
 
@@ -709,29 +627,11 @@
       const btnCheckout = document.getElementById('btn-checkout');
 
       lista.innerHTML = carrito.map((item, index) => `
-        <div class="list-group-item carrito-item d-flex justify-content-between align-items-start">
-          <div class="w-100">
-            <div class="d-flex justify-content-between align-items-start">
-              <strong>${item.nombre} ${item.esCombo ? '<small class="text-warning">(Combo)</small>' : ''}</strong>
-              <span class="fw-bold">${(item.precio * item.cantidad).toFixed(2)} CUP</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-2">
-              <div class="stepper">
-                <button type="button" onclick="cambiarCantidad(${index}, -1)" aria-label="Quitar una unidad"><i class="bi bi-dash"></i></button>
-                <span>${item.cantidad}</span>
-                <button type="button" onclick="cambiarCantidad(${index}, 1)" aria-label="Añadir una unidad"><i class="bi bi-plus"></i></button>
-              </div>
-              <button class="btn btn-sm text-danger" onclick="eliminarDelCarrito(${index})" title="Eliminar"><i class="bi bi-trash"></i></button>
-            </div>
-            ${!item.esCombo && item.permiteExtras ? `<input type="text" class="form-control form-control-sm mt-2" placeholder="Instrucciones especiales" value="${item.extras}" oninput="actualizarExtras(${index}, this.value)">` : ''}
-          </div>
-        </div>
-      `).join('') || `<div class="carrito-vacio"><i class="bi bi-basket"></i><p class="mt-2 mb-0 fw-semibold">Tu carrito está vacío</p><small>Añade algo rico de la carta 🍔</small></div>`;
+        <div class="list-group-item carrito-item d-flex justify-content-between align-items-start"><div class="w-100"><div class="d-flex justify-content-between align-items-start"><strong>${item.nombre} ${item.esCombo ? '<small class="text-warning">(Combo)</small>' : ''}</strong><span class="fw-bold">${(item.precio * item.cantidad).toFixed(2)} CUP</span></div><div class="d-flex justify-content-between align-items-center mt-2"><div class="stepper"><button type="button" onclick="cambiarCantidad(${index}, -1)"><i class="bi bi-dash"></i></button><span>${item.cantidad}</span><button type="button" onclick="cambiarCantidad(${index}, 1)"><i class="bi bi-plus"></i></button></div><button class="btn btn-sm text-danger" onclick="eliminarDelCarrito(${index})"><i class="bi bi-trash"></i></button></div>${!item.esCombo && item.permiteExtras ? `<input type="text" class="form-control form-control-sm mt-2" placeholder="Instrucciones especiales" value="${item.extras}" oninput="actualizarExtras(${index}, this.value)">` : ''}</div></div>`).join('') || `<div class="carrito-vacio"><i class="bi bi-basket"></i><p class="mt-2 mb-0 fw-semibold">Tu carrito está vacío</p><small>Añade algo rico de la carta 🍔</small></div>`;
 
       const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
       document.getElementById('subtotal-carrito').textContent = subtotal.toFixed(2);
 
-      // Calcular recargo
       const metodoPago = document.getElementById('metodo-pago').value;
       let recargo = 0;
       if (metodoPago === 'transferencia' && recargoTransferencia > 0) {
@@ -742,11 +642,10 @@
         document.getElementById('recargo-desglose').classList.add('d-none');
       }
 
-      // Calcular envío
-      const repartoSelect = document.getElementById('reparto-select');
+      const precioEnvio = parseFloat(document.getElementById('reparto-precio').value) || 0;
       let envio = 0;
-      if (repartoSelect && repartoSelect.selectedOptions[0]?.dataset.precio) {
-        envio = parseFloat(repartoSelect.selectedOptions[0].dataset.precio);
+      if (precioEnvio > 0) {
+        envio = precioEnvio;
         document.getElementById('envio-aplicado').textContent = envio.toFixed(2);
         document.getElementById('envio-desglose').classList.remove('d-none');
       } else {
@@ -757,115 +656,47 @@
       totalSpan.textContent = total.toFixed(2) + ' CUP';
 
       const nuevoConteo = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-      if (countBadge.textContent !== String(nuevoConteo)) {
-        countBadge.classList.remove('bump');
-        void countBadge.offsetWidth;
-        countBadge.classList.add('bump');
-      }
+      if (countBadge.textContent !== String(nuevoConteo)) { countBadge.classList.remove('bump'); void countBadge.offsetWidth; countBadge.classList.add('bump'); }
       countBadge.textContent = nuevoConteo;
 
-      // Habilitar botón si hay productos y reparto seleccionado
-      btnCheckout.disabled = carrito.length === 0 || !repartoSelect?.value;
+      btnCheckout.disabled = carrito.length === 0 || !document.getElementById('reparto-id').value;
     }
 
-    function actualizarExtras(index, valor) {
-      if (index >= 0 && index < carrito.length) carrito[index].extras = valor;
-    }
+    function actualizarExtras(index, valor) { if (index >= 0 && index < carrito.length) carrito[index].extras = valor; }
+    function eliminarDelCarrito(index) { carrito.splice(index, 1); actualizarCarrito(); }
 
-    function eliminarDelCarrito(index) {
-      carrito.splice(index, 1);
-      actualizarCarrito();
-    }
-
-    document.getElementById('btn-checkout').addEventListener('click', () => {
-      if (carrito.length === 0) return;
-      checkoutModalInstance.show();
-    });
+    document.getElementById('btn-checkout').addEventListener('click', () => { if (carrito.length === 0) return; checkoutModalInstance.show(); });
 
     document.getElementById('confirmar-pedido').addEventListener('click', async () => {
       const nombre = document.getElementById('nombre').value.trim();
       const telefono = document.getElementById('telefono').value.trim();
       const direccion = document.getElementById('direccion').value.trim();
       const referencia = document.getElementById('referencia').value.trim();
-
-      const errorDiv = document.getElementById('checkout-error');
-      const errorText = document.getElementById('error-text');
-      if (!nombre || !telefono || !direccion) {
-        errorText.textContent = 'Completa los campos obligatorios.';
-        errorDiv.style.display = 'block';
-        return;
-      }
+      const errorDiv = document.getElementById('checkout-error'); const errorText = document.getElementById('error-text');
+      if (!nombre || !telefono || !direccion) { errorText.textContent = 'Completa los campos obligatorios.'; errorDiv.style.display = 'block'; return; }
       errorDiv.style.display = 'none';
 
       const metodoPago = document.getElementById('metodo-pago').value;
-      const repartoSelect = document.getElementById('reparto-select');
-      const opcion = repartoSelect.options[repartoSelect.selectedIndex];
-      const zonaTexto = opcion && opcion.value ? opcion.textContent : 'Domicilio';
+      const zonaTexto = document.getElementById('reparto-seleccionado-texto')?.textContent || 'Domicilio';
       const totalPedido = parseFloat(document.getElementById('total-pedido').textContent);
 
-      const { error: errorPedido } = await supabaseClient
-        .from('pedidos')
-        .insert([{
-          nombre,
-          telefono,
-          direccion,
-          referencia: referencia || null,
-          metodo_pago: metodoPago,
-          zona: zonaTexto,
-          total: totalPedido,
-          items: carrito.map(item => ({
-            nombre: item.nombre,
-            precio: item.precio,
-            cantidad: item.cantidad,
-            extras: item.extras || null,
-            esCombo: item.esCombo || false
-          })),
-          estado: 'pendiente'
-        }]);
+      const { error: errorPedido } = await supabaseClient.from('pedidos').insert([{
+        nombre, telefono, direccion, referencia: referencia || null, metodo_pago: metodoPago,
+        zona: zonaTexto, total: totalPedido,
+        items: carrito.map(item => ({ nombre: item.nombre, precio: item.precio, cantidad: item.cantidad, extras: item.extras || null, esCombo: item.esCombo || false })),
+        estado: 'pendiente'
+      }]);
 
-      if (errorPedido) {
-        errorText.textContent = 'Error al enviar el pedido.';
-        errorDiv.style.display = 'block';
-        return;
-      }
+      if (errorPedido) { errorText.textContent = 'Error al enviar el pedido.'; errorDiv.style.display = 'block'; return; }
 
-      // ─── ENVIAR NOTIFICACIÓN NTFY ───
-      const productosTexto = carrito.map(item => {
-        const extra = item.extras ? ` (${item.extras})` : '';
-        return `${item.cantidad}x ${item.nombre}${extra} — ${(item.precio * item.cantidad).toFixed(2)} CUP`;
-      }).join('\n');
+      const productosTexto = carrito.map(item => { const extra = item.extras ? ` (${item.extras})` : ''; return `${item.cantidad}x ${item.nombre}${extra} — ${(item.precio * item.cantidad).toFixed(2)} CUP`; }).join('\n');
+      const mensajeNtfy = `🍔 NUEVO PEDIDO — ComeCome\n👤 ${nombre}\n📞 ${telefono}\n📍 ${direccion}${referencia ? '\n📌 Ref: ' + referencia : ''}\n🛵 Entrega: ${zonaTexto}\n💳 Pago: ${metodoPago}\n────────────────\n${productosTexto}\n────────────────\n💰 TOTAL: ${totalPedido.toFixed(2)} CUP`;
+      fetch(`https://ntfy.sh/${NTFY_TOPIC}`, { method: 'POST', body: mensajeNtfy }).catch(() => {});
 
-      const mensajeNtfy = 
-`🍔 NUEVO PEDIDO — ComeCome
-👤 ${nombre}
-📞 ${telefono}
-📍 ${direccion}${referencia ? '\n📌 Ref: ' + referencia : ''}
-🛵 Entrega: ${zonaTexto}
-💳 Pago: ${metodoPago}
-────────────────
-${productosTexto}
-────────────────
-💰 TOTAL: ${totalPedido.toFixed(2)} CUP`;
-
-      fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
-        method: 'POST',
-        body: mensajeNtfy
-      }).catch(() => {});
-
-      // ─── FIN NOTIFICACIÓN ───
-
-      checkoutModalInstance.hide();
-      const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('carritoOffcanvas'));
-      if (offcanvas) offcanvas.hide();
+      checkoutModalInstance.hide(); const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('carritoOffcanvas')); if (offcanvas) offcanvas.hide();
       document.getElementById('confirmar-pedido').blur();
-
-      setTimeout(() => {
-        const toast = new bootstrap.Toast(document.getElementById('toastPedido'));
-        toast.show();
-      }, 300);
-
-      carrito = [];
-      actualizarCarrito();
+      setTimeout(() => { const toast = new bootstrap.Toast(document.getElementById('toastPedido')); toast.show(); }, 300);
+      carrito = []; actualizarCarrito();
     });
   </script>
 </body>
