@@ -196,6 +196,7 @@ body {
 /* Elementos del carrito */
 .carrito-item {
   background-color: var(--bg-card) !important;
+  color: var(--text-main) !important; /* Corrección de visibilidad añadida */
   border: 2px solid var(--border-arcade) !important;
   margin-bottom: 8px;
   border-radius: 0 !important;
