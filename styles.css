@@ -88,12 +88,16 @@ body {
 
 /* Categorías Nav */
 .categorias-nav {
+  position: sticky;
+  top: 56px; /* Desfase estimado correspondiente a la altura de la .navbar principal */
+  z-index: 1010; /* Asegura que se posicione sobre el contenido del body al hacer scroll */
   background-color: var(--maze-color);
   padding: 10px 0;
   white-space: nowrap;
   overflow-x: auto;
   border-bottom: 2px dashed var(--pacman-color);
 }
+
 .btn-categoria {
   background: transparent;
   border: none;
