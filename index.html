@@ -3,281 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ComeCome - Hamburguesería</title>
+  <title>ComeCome - Arcade Store</title>
   <link rel="icon" type="image/png" href="pacman-icon.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  
+  <!-- Fuente Retro Arcade -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --amarillo: #FCE029;
-      --amarillo-hover: #FFD400;
-      --amarillo-oscuro: #C9A100;
-      --negro: #141414;
-      --gris-texto: #6B6B6B;
-      --borde-suave: rgba(0,0,0,0.08);
-      --sombra-card: 0 3px 10px rgba(0,0,0,0.08);
-      --sombra-card-hover: 0 14px 28px rgba(0,0,0,0.16);
-      --gradiente-cta: linear-gradient(135deg, var(--amarillo), var(--amarillo-hover));
-    }
-
-    * { -webkit-tap-highlight-color: transparent; }
-
-    body {
-      background-color: #FFFCF5;
-      font-family: 'Inter', sans-serif;
-      color: #222;
-    }
-
-    h1, h2, h3, .navbar-brand, .btn-categoria, .card-title, .fw-bold.fs-5, .offcanvas-title, .precio-pill {
-      font-family: 'Poppins', sans-serif;
-    }
-
-    ::selection { background: var(--amarillo); color: var(--negro); }
-
-    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-      outline: 3px solid var(--amarillo-oscuro);
-      outline-offset: 2px;
-    }
-
-    .navbar, .footer { background-color: var(--negro); }
-    .navbar-brand, .nav-link, .btn-carrito { color: var(--amarillo) !important; }
-    .navbar-brand { font-weight: 800; font-size: 1.35rem; letter-spacing: 0.2px; }
-
-    .btn-amarillo {
-      background: var(--gradiente-cta); color: var(--negro);
-      border: none; font-weight: 700; font-family: 'Poppins', sans-serif;
-      border-radius: 2rem; box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .btn-amarillo:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.28); }
-    .btn-amarillo:active { transform: translateY(0); }
-    .btn-amarillo:disabled { opacity: 0.45; box-shadow: none; transform: none; }
-
-    .btn-outline-amarillo {
-      color: var(--amarillo-oscuro);
-      border: 2px solid var(--amarillo);
-      background: transparent;
-      font-weight: 700;
-      font-family: 'Poppins', sans-serif;
-      border-radius: 2rem;
-      transition: all 0.15s ease;
-    }
-    .btn-outline-amarillo:hover {
-      background: var(--amarillo);
-      color: var(--negro);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-    }
-    .btn-outline-amarillo:active { transform: translateY(0); }
-
-    .card-producto {
-      position: relative;
-      border: none; border-radius: 1.1rem;
-      box-shadow: var(--sombra-card); background: #fff;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .card-producto:hover { transform: translateY(-4px); box-shadow: var(--sombra-card-hover); }
-
-    .producto-media { position: relative; }
-    .producto-media img, .producto-media .producto-sin-foto {
-      border-radius: 1.1rem 1.1rem 0 0;
-    }
-    .card-producto .card-img-top { aspect-ratio: 4/3; object-fit: cover; display: block; }
-    .producto-sin-foto {
-      width: 100%; aspect-ratio: 4/3; background-color: var(--negro);
-      color: var(--amarillo);
-      display: flex; align-items: center; justify-content: center; font-size: 2.6rem;
-    }
-
-    .card-body { padding-top: 1.7rem; border-radius: 0 0 1.1rem 1.1rem; }
-
-    .btn-add-flotante {
-      position: absolute; right: 14px; bottom: -18px; z-index: 3;
-      width: 44px; height: 44px; border-radius: 50%;
-      background: var(--gradiente-cta); color: var(--negro); border: 3px solid #fff;
-      display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.3);
-      transition: transform 0.15s ease;
-    }
-    .btn-add-flotante:hover { transform: scale(1.12) rotate(8deg); }
-    .btn-add-flotante:active { transform: scale(0.92); }
-    .btn-add-flotante:disabled { background: #bdbdbd; box-shadow: none; }
-
-    .precio-pill {
-      background: var(--amarillo); color: var(--negro); font-weight: 800;
-      border-radius: 2rem; padding: 0.3rem 0.85rem; font-size: 1.05rem; display: inline-block;
-    }
-
-    .badge-oferta {
-      position: absolute; top: 10px; left: 10px; z-index: 2;
-      background: var(--gradiente-cta); color: var(--negro); font-weight: 700;
-      border-radius: 2rem; padding: 0.3rem 0.7rem; font-size: 0.78rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-
-    .offcanvas-header, .offcanvas-footer { background-color: var(--negro); color: var(--amarillo); }
-    .offcanvas-body { background-color: #FFFCF5; }
-
-    .toast {
-      background-color: var(--negro); color: #fff;
-      border: 1px solid var(--amarillo); border-radius: 0.8rem;
-    }
-    .toast i.bi-check-circle-fill { color: var(--amarillo); }
-    .toast .btn-close { filter: invert(1); }
-    .toast .toast-body { font-size: 0.9rem; line-height: 1.3; }
-    .error-message { display: none; }
-
-    .categorias-nav {
-      background-color: var(--negro); padding: 0.6rem 0;
-      position: sticky; top: 56px; z-index: 1020;
-      overflow-x: auto; white-space: nowrap;
-      -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-    .categorias-nav::-webkit-scrollbar { display: none; }
-    .categorias-nav .container { display: flex; flex-wrap: nowrap; padding: 0 1rem; gap: 0.4rem; }
-    .btn-categoria {
-      display: inline-block; background: transparent; color: #cfcfcf;
-      border: none; border-bottom: 3px solid transparent; border-radius: 0;
-      padding: 0.5rem 0.9rem; margin: 0; font-weight: 600; font-size: 0.88rem;
-      transition: all 0.2s ease; white-space: nowrap; text-decoration: none;
-    }
-    .btn-categoria:hover { color: #fff; border-bottom-color: rgba(255,255,255,0.35); }
-    .btn-categoria.active {
-      background: transparent; color: var(--amarillo);
-      border-bottom-color: var(--amarillo); font-weight: 700; box-shadow: none;
-    }
-
-    .icono-titulo {
-      background: var(--gradiente-cta); color: var(--negro);
-      width: 38px; height: 38px; border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-    }
-
-    .carrito-item { border: none !important; border-bottom: 1px solid var(--borde-suave) !important; padding: 0.9rem 0.25rem; }
-    .stepper { display: flex; align-items: center; gap: 0.6rem; }
-    .stepper button {
-      width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--borde-suave);
-      background: #fff; display: flex; align-items: center; justify-content: center; line-height: 1;
-      transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-    }
-    .stepper button:hover { background: var(--gradiente-cta); color: var(--negro); border-color: transparent; }
-    .stepper span { min-width: 1.2rem; text-align: center; font-weight: 600; }
-
-    #cart-count { background-color: var(--amarillo) !important; color: var(--negro) !important; }
-    #cart-count.bump { animation: bump 0.3s ease; }
-    @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.4); } 100% { transform: scale(1); } }
-
-    .carrito-vacio { text-align: center; padding: 2.5rem 1rem; color: var(--gris-texto); }
-    .carrito-vacio i { font-size: 2.4rem; color: var(--amarillo-oscuro); }
-
-    #total-pedido { color: var(--amarillo-oscuro); font-size: 1.15rem; }
-
-    .desglose { font-size: 0.9rem; color: var(--gris-texto); }
-    .desglose span { color: var(--negro); font-weight: 500; }
-
-    .reparto-autocomplete { position: relative; }
-    .reparto-sugerencias {
-      position: absolute; top: 100%; left: 0; right: 0; z-index: 10;
-      background: #fff; border: 2px solid var(--amarillo); border-radius: 0.5rem;
-      max-height: 200px; overflow-y: auto; box-shadow: var(--sombra-card);
-      display: none;
-    }
-    .reparto-sugerencias.show { display: block; }
-    .reparto-opcion {
-      padding: 0.6rem 1rem; cursor: pointer; border-bottom: 1px solid var(--borde-suave);
-      display: flex; justify-content: space-between; align-items: center;
-      transition: background 0.1s;
-    }
-    .reparto-opcion:hover, .reparto-opcion.activa { background: var(--amarillo); color: var(--negro); }
-    .reparto-opcion .nombre { font-weight: 600; }
-    .reparto-opcion .precio { font-weight: 700; }
-
-    #reparto-input { border-radius: 0.5rem; }
-    #reparto-input:focus { border-color: var(--amarillo); box-shadow: 0 0 0 0.2rem rgba(252,224,41,0.25); }
-
-    .reparto-seleccionado {
-      background: #f8f9fa; border: 1px solid var(--amarillo); border-radius: 0.5rem;
-      padding: 0.6rem 1rem; display: flex; justify-content: space-between; align-items: center;
-    }
-    .reparto-seleccionado .btn-limpiar { color: var(--amarillo-oscuro); cursor: pointer; font-size: 1.2rem; }
-
-    .skeleton {
-      background: linear-gradient(90deg, #ececec 25%, #f6f6f6 50%, #ececec 75%);
-      background-size: 200% 100%; animation: skeleton-pulse 1.4s ease-in-out infinite;
-      border-radius: 0.6rem;
-    }
-    @keyframes skeleton-pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    .skeleton-card { height: 270px; border-radius: 1rem; }
-    .skeleton-chip { height: 32px; width: 84px; border-radius: 2rem; display: inline-block; margin-right: 0.4rem; flex: none; }
-
-    /* Footer con íconos más pequeños y sin wrap */
-    .footer .footer-links {
-      display: flex;
-      flex-wrap: nowrap;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .footer-icon-link {
-      color: var(--amarillo);
-      font-size: 1.4rem;
-      padding: 0.4rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.15s ease, color 0.15s ease, background 0.15s ease;
-      text-decoration: none;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.05);
-      width: 2.6rem;
-      height: 2.6rem;
-    }
-    .footer-icon-link:hover {
-      color: #fff;
-      transform: scale(1.1);
-      background: rgba(255,255,255,0.12);
-    }
-    .footer .copyright {
-      font-size: 0.85rem;
-      white-space: nowrap;
-    }
-
-    @media (max-width: 400px) {
-      .footer-icon-link {
-        font-size: 1.2rem;
-        width: 2.2rem;
-        height: 2.2rem;
-      }
-      .footer .copyright {
-        font-size: 0.7rem;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-    }
-
-    .toast-container { display: flex; justify-content: center; left: 0; right: 0; pointer-events: none; }
-    .toast { max-width: 90vw; margin: 0 auto; pointer-events: auto; }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
   <!-- Navbar -->
-  <nav class="navbar navbar-dark bg-dark sticky-top">
+  <nav class="navbar navbar-dark sticky-top">
     <div class="container">
-      <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
-        <img src="pacman-icon.png" alt="ComeCome" style="height: 30px; width: 30px; object-fit: contain; margin-right: 0.5rem;">
-        ComeCome
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="pacman-icon.png" alt="ComeCome" style="height: 24px; width: 24px; object-fit: contain; margin-right: 0.8rem;">
+        COMECOME
       </a>
-      <button class="btn btn-outline-warning position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#carritoOffcanvas">
+      <button class="btn btn-outline-pacman position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#carritoOffcanvas">
         <i class="bi bi-cart-fill"></i>
-        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">0</span>
+        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge bg-pacman text-dark">0</span>
       </button>
     </div>
   </nav>
@@ -292,27 +42,27 @@
   </div>
 
   <!-- Aviso de horario -->
-  <div id="horario-aviso" class="alert alert-warning text-center mb-0 d-none" role="alert">
-    <i class="bi bi-clock"></i> Fuera de horario. <span id="horario-texto"></span>
+  <div id="horario-aviso" class="alert alert-pacman text-center mb-0 d-none" role="alert">
+    <i class="bi bi-clock"></i> FUERA DE HORARIO. <span id="horario-texto"></span>
   </div>
 
   <!-- Toast -->
   <div aria-live="polite" aria-atomic="true" class="toast-container position-fixed bottom-0 start-0 end-0 p-3" style="z-index: 11">
-    <div id="toastPedido" class="toast align-items-center border-warning" role="alert" data-bs-delay="5000">
+    <div id="toastPedido" class="toast align-items-center bg-black border-pacman" role="alert" data-bs-delay="5000">
       <div class="d-flex">
-        <div class="toast-body">
-          <i class="bi bi-check-circle-fill"></i> ¡Pedido enviado!<br><small class="text-warning">Te contactaremos pronto.</small>
+        <div class="toast-body text-white">
+          <i class="bi bi-check-circle-fill text-pacman"></i> ¡PEDIDO ENVIADO!<br><small class="text-pacman mt-2 d-block">TE CONTACTAREMOS PRONTO.</small>
         </div>
-        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
       </div>
     </div>
   </div>
 
   <!-- Contenido principal -->
   <main class="container my-4">
-    <h2 class="mb-3 d-flex align-items-center gap-2">
-      <span class="icono-titulo"><i class="bi bi-fire"></i></span>
-      Nuestra Carta
+    <h2 class="mb-4 d-flex align-items-center gap-3 fs-5">
+      <span class="icono-titulo"><i class="bi bi-controller"></i></span>
+      NUESTRA CARTA
     </h2>
     <div id="productos-container" class="row row-cols-1 row-cols-md-3 g-4">
       <div class="col"><div class="skeleton skeleton-card"></div></div>
@@ -321,464 +71,102 @@
     </div>
   </main>
 
-  <!-- Footer renovado -->
-  <footer class="footer text-center py-3 mt-5">
+  <!-- Footer -->
+  <footer class="footer text-center py-4 mt-5">
     <div class="container">
-      <div class="footer-links">
-        <small class="text-warning copyright" id="copyright-text">© 2025 ComeCome</small>
-        <a href="tel:+5356553393" class="footer-icon-link" title="Llamar">
-          <i class="bi bi-telephone-fill"></i>
-        </a>
-        <a href="https://wa.me/5356553393" target="_blank" class="footer-icon-link" title="WhatsApp">
-          <i class="bi bi-whatsapp"></i>
-        </a>
-        <a href="https://maps.app.goo.gl/g56dr6G34VgmH9Hj8" target="_blank" class="footer-icon-link" title="Cómo llegar">
-          <i class="bi bi-geo-alt-fill"></i>
-        </a>
+      <div class="footer-links mb-3">
+        <a href="tel:+5356553393" class="footer-icon-link" title="Llamar"><i class="bi bi-telephone-fill"></i></a>
+        <a href="https://wa.me/5356553393" target="_blank" class="footer-icon-link" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+        <a href="https://maps.app.goo.gl/g56dr6G34VgmH9Hj8" target="_blank" class="footer-icon-link" title="Cómo llegar"><i class="bi bi-geo-alt-fill"></i></a>
       </div>
+      <small class="text-pacman copyright" id="copyright-text">© 2026 ComeCome</small>
     </div>
   </footer>
 
   <!-- Offcanvas carrito -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="carritoOffcanvas">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title"><i class="bi bi-cart2"></i> Tu pedido</h5>
+  <div class="offcanvas offcanvas-end bg-black border-left-maze" tabindex="-1" id="carritoOffcanvas">
+    <div class="offcanvas-header border-bottom-maze">
+      <h5 class="offcanvas-title text-pacman"><i class="bi bi-cart2"></i> TU PEDIDO</h5>
       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body">
       <div id="carrito-lista" class="list-group mb-3"></div>
 
       <div class="mb-3">
-        <label class="form-label fw-bold">Método de pago</label>
-        <select id="metodo-pago" class="form-select" onchange="actualizarCarrito()">
-          <option value="efectivo">Efectivo</option>
-          <option value="transferencia">Transferencia</option>
+        <label class="form-label text-pacman">MÉTODO DE PAGO</label>
+        <select id="metodo-pago" class="form-select select-arcade" onchange="actualizarCarrito()">
+          <option value="efectivo">EFECTIVO</option>
+          <option value="transferencia">TRANSFERENCIA</option>
         </select>
-        <small id="recargo-info" class="text-muted d-none"></small>
+        <small id="recargo-info" class="text-muted d-none mt-2 d-block"></small>
       </div>
 
       <div class="mb-3">
-        <label class="form-label fw-bold">Reparto</label>
+        <label class="form-label text-pacman">REPARTO</label>
         <div class="reparto-autocomplete">
-          <input type="text" id="reparto-input" class="form-control" placeholder="Escribe tu zona..." autocomplete="off" oninput="filtrarRepartos()" onfocus="mostrarSugerencias()">
+          <input type="text" id="reparto-input" class="form-control input-arcade" placeholder="ZONA..." autocomplete="off" oninput="filtrarRepartos()" onfocus="mostrarSugerencias()">
           <input type="hidden" id="reparto-id" value="">
           <input type="hidden" id="reparto-precio" value="">
-          <div class="reparto-sugerencias" id="reparto-sugerencias"></div>
+          <div class="reparto-sugerencias border-pacman" id="reparto-sugerencias"></div>
         </div>
-        <div id="reparto-seleccionado" class="reparto-seleccionado d-none mt-2">
-          <span id="reparto-seleccionado-texto"></span>
-          <i class="bi bi-x-circle btn-limpiar" onclick="limpiarReparto()" title="Quitar reparto"></i>
+        <div id="reparto-seleccionado" class="reparto-seleccionado bg-dark border-pacman d-none mt-2">
+          <span id="reparto-seleccionado-texto" class="text-white"></span>
+          <i class="bi bi-x-square-fill btn-limpiar text-danger" onclick="limpiarReparto()" title="Quitar reparto"></i>
         </div>
       </div>
 
-      <div class="desglose mb-1">
-        Subtotal: <span id="subtotal-carrito">0.00</span> CUP
-      </div>
-      <div id="recargo-desglose" class="desglose mb-1 d-none">
-        Recargo transf.: <span id="recargo-aplicado">0.00</span> CUP
-      </div>
-      <div id="envio-desglose" class="desglose mb-1 d-none">
-        Envío: <span id="envio-aplicado">0.00</span> CUP
-      </div>
-      <div class="d-flex justify-content-between fw-bold border-top pt-2">
-        <span>Total:</span>
+      <div class="desglose mb-1 text-white">SUBTOTAL: <span id="subtotal-carrito" class="text-pacman">0.00</span> CUP</div>
+      <div id="recargo-desglose" class="desglose mb-1 text-white d-none">RECARGO: <span id="recargo-aplicado" class="text-pacman">0.00</span> CUP</div>
+      <div id="envio-desglose" class="desglose mb-1 text-white d-none">ENVÍO: <span id="envio-aplicado" class="text-pacman">0.00</span> CUP</div>
+      
+      <div class="d-flex justify-content-between text-pacman border-top-maze pt-3 mt-3">
+        <span>TOTAL:</span>
         <span id="total-pedido">0.00 CUP</span>
       </div>
-      <button id="btn-checkout" class="btn btn-amarillo w-100 mt-3" disabled>
-        <i class="bi bi-check-circle"></i> Realizar pedido
+      <button id="btn-checkout" class="btn btn-pacman w-100 mt-4" disabled>
+        INSERT COIN (PEDIR)
       </button>
     </div>
   </div>
 
   <!-- Offcanvas Datos de entrega -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="datosOffcanvas">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title"><i class="bi bi-pencil-square"></i> Datos de entrega</h5>
+  <div class="offcanvas offcanvas-end bg-black border-left-maze" tabindex="-1" id="datosOffcanvas">
+    <div class="offcanvas-header border-bottom-maze">
+      <h5 class="offcanvas-title text-pacman"><i class="bi bi-pencil-square"></i> DATOS</h5>
       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body">
-      <div id="checkout-error" class="alert alert-danger py-2 error-message" role="alert">
+      <div id="checkout-error" class="alert alert-danger py-2 error-message rounded-0" role="alert">
         <i class="bi bi-exclamation-triangle"></i> <span id="error-text"></span>
       </div>
-      <form id="checkout-form">
+      <form id="checkout-form" class="text-white">
         <div class="mb-3">
-          <label class="form-label">Nombre</label>
-          <input type="text" class="form-control" id="nombre" required>
+          <label class="form-label text-pacman">NOMBRE</label>
+          <input type="text" class="form-control input-arcade" id="nombre" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">Teléfono</label>
-          <input type="tel" class="form-control" id="telefono" required>
+          <label class="form-label text-pacman">TELÉFONO</label>
+          <input type="tel" class="form-control input-arcade" id="telefono" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">Dirección completa</label>
-          <textarea class="form-control" id="direccion" rows="2" required></textarea>
+          <label class="form-label text-pacman">DIRECCIÓN</label>
+          <textarea class="form-control input-arcade" id="direccion" rows="2" required></textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label">Punto de referencia <small class="text-muted">(opcional)</small></label>
-          <textarea class="form-control" id="referencia" rows="1" placeholder="Ej: detrás de la gasolinera..."></textarea>
+          <label class="form-label text-pacman">REFERENCIA</label>
+          <textarea class="form-control input-arcade" id="referencia" rows="1"></textarea>
         </div>
       </form>
-      <div class="d-flex gap-3 mt-3">
-        <button type="button" class="btn btn-outline-amarillo flex-fill py-2" data-bs-dismiss="offcanvas">Cancelar</button>
-        <button type="button" class="btn btn-amarillo flex-fill py-2" id="confirmar-pedido">Confirmar</button>
+      <div class="d-flex gap-3 mt-4">
+        <button type="button" class="btn btn-outline-pacman flex-fill" data-bs-dismiss="offcanvas">CANCELAR</button>
+        <button type="button" class="btn btn-pacman flex-fill" id="confirmar-pedido">START</button>
       </div>
     </div>
   </div>
 
-  <!-- Supabase JS -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    (function() { var noop = function() {}; console.log = noop; console.warn = noop; console.error = noop; console.info = noop; })();
-
-    // Año actual en el copyright
-    document.addEventListener('DOMContentLoaded', function() {
-      const yearSpan = document.getElementById('copyright-text');
-      if (yearSpan) {
-        const currentYear = new Date().getFullYear();
-        yearSpan.textContent = `© ${currentYear} ComeCome`;
-      }
-    });
-
-    const SUPABASE_URL = 'https://xjjbrnjgpncxwqishseo.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_e68llCL_CYuf2M9TyVcdWA_HdMDYpVF';
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const NTFY_TOPIC = 'comecome_8f3js9f83jf93jf';
-
-    let todasCategorias = [];
-    let todosProductos = [];
-    let hayCombosActivos = false;
-    let categoriaActiva = 'todas';
-    let carrito = [];
-    let horarioAbierto = true;
-    let recargoTransferencia = 0;
-    let repartosDisponibles = [];
-
-    let carritoOffcanvasInstance = null;
-    let datosOffcanvasInstance = null;
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      const carritoEl = document.getElementById('carritoOffcanvas');
-      const datosEl = document.getElementById('datosOffcanvas');
-      if (carritoEl) carritoOffcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(carritoEl);
-      if (datosEl) datosOffcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(datosEl);
-
-      await cargarConfiguracion();
-      await cargarCategorias();
-      await cargarProductos();
-      await verificarCombosActivos();
-      await cargarRepartosEnvio();
-      renderCategorias();
-      await verificarHorario();
-      renderProductos();
-
-      document.getElementById('metodo-pago').addEventListener('change', () => {
-        actualizarInfoRecargo();
-        actualizarCarrito();
-      });
-
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.reparto-autocomplete')) {
-          document.getElementById('reparto-sugerencias').classList.remove('show');
-        }
-      });
-
-      setInterval(async () => {
-        await verificarHorario();
-        if (categoriaActiva === 'combos') {
-          cargarCombosPublicos();
-        } else {
-          renderProductos();
-        }
-      }, 60000);
-
-      document.getElementById('btn-checkout').addEventListener('click', () => {
-        if (carrito.length === 0) return;
-        if (carritoOffcanvasInstance) carritoOffcanvasInstance.hide();
-        document.getElementById('nombre').value = '';
-        document.getElementById('telefono').value = '';
-        document.getElementById('direccion').value = '';
-        document.getElementById('referencia').value = '';
-        document.getElementById('checkout-error').style.display = 'none';
-        if (datosOffcanvasInstance) datosOffcanvasInstance.show();
-      });
-
-      document.getElementById('confirmar-pedido').addEventListener('click', async () => {
-        await confirmarPedido();
-      });
-    });
-
-    // ----- Funciones existentes (sin cambios) -----
-    async function cargarConfiguracion() {
-      const { data } = await supabaseClient
-        .from('configuracion')
-        .select('recargo_transferencia')
-        .single();
-      if (data) {
-        recargoTransferencia = parseFloat(data.recargo_transferencia) || 0;
-        actualizarInfoRecargo();
-      }
-    }
-
-    function actualizarInfoRecargo() {
-      const metodo = document.getElementById('metodo-pago').value;
-      const info = document.getElementById('recargo-info');
-      if (metodo === 'transferencia' && recargoTransferencia > 0) {
-        info.textContent = `Se aplica un recargo del ${recargoTransferencia}% sobre el subtotal.`;
-        info.classList.remove('d-none');
-      } else {
-        info.classList.add('d-none');
-      }
-    }
-
-    async function cargarCategorias() {
-      const { data } = await supabaseClient.from('categorias').select('*').order('nombre');
-      if (data) todasCategorias = data;
-    }
-
-    async function cargarProductos() {
-      const { data } = await supabaseClient.from('productos').select('*, categorias(nombre)').eq('activo', true).order('nombre');
-      if (data) todosProductos = data;
-    }
-
-    async function verificarCombosActivos() {
-      const { data } = await supabaseClient.from('combos').select('id').eq('activo', true).limit(1);
-      hayCombosActivos = data && data.length > 0;
-    }
-
-    async function cargarRepartosEnvio() {
-      const { data, error } = await supabaseClient.from('repartos').select('*').eq('activo', true).order('nombre');
-      if (!error && data) repartosDisponibles = data;
-      else repartosDisponibles = [];
-    }
-
-    function mostrarSugerencias() {
-      const input = document.getElementById('reparto-input');
-      const sugerencias = document.getElementById('reparto-sugerencias');
-      if (repartosDisponibles.length > 0 && !document.getElementById('reparto-id').value) {
-        filtrarRepartos();
-      }
-    }
-
-    function filtrarRepartos() {
-      const input = document.getElementById('reparto-input');
-      const sugerencias = document.getElementById('reparto-sugerencias');
-      const texto = input.value.toLowerCase().trim();
-
-      let filtrados = repartosDisponibles;
-      if (texto) {
-        filtrados = repartosDisponibles.filter(r => r.nombre.toLowerCase().includes(texto));
-      }
-
-      if (filtrados.length === 0) {
-        sugerencias.innerHTML = '<div class="reparto-opcion text-muted">No se encontraron repartos</div>';
-      } else {
-        sugerencias.innerHTML = filtrados.map(r => `
-          <div class="reparto-opcion" onclick="seleccionarReparto('${r.id}', '${r.nombre}', ${r.precio})">
-            <span class="nombre">${r.nombre}</span>
-            <span class="precio">+${parseFloat(r.precio).toFixed(2)} CUP</span>
-          </div>
-        `).join('');
-      }
-      sugerencias.classList.add('show');
-    }
-
-    function seleccionarReparto(id, nombre, precio) {
-      document.getElementById('reparto-id').value = id;
-      document.getElementById('reparto-precio').value = precio;
-      document.getElementById('reparto-input').value = '';
-      document.getElementById('reparto-sugerencias').classList.remove('show');
-      document.getElementById('reparto-seleccionado-texto').textContent = `${nombre} +${parseFloat(precio).toFixed(2)} CUP`;
-      document.getElementById('reparto-seleccionado').classList.remove('d-none');
-      document.getElementById('reparto-input').classList.add('d-none');
-      actualizarCarrito();
-    }
-
-    function limpiarReparto() {
-      document.getElementById('reparto-id').value = '';
-      document.getElementById('reparto-precio').value = '';
-      document.getElementById('reparto-input').value = '';
-      document.getElementById('reparto-seleccionado').classList.add('d-none');
-      document.getElementById('reparto-input').classList.remove('d-none');
-      document.getElementById('reparto-sugerencias').classList.remove('show');
-      actualizarCarrito();
-    }
-
-    function renderCategorias() {
-      const container = document.getElementById('categorias-container');
-      let html = `<button class="btn-categoria active" onclick="filtrarPorCategoria('todas', this)">Todas</button>`;
-      if (hayCombosActivos) html += `<button class="btn-categoria" onclick="filtrarPorCategoria('combos', this)">Combos</button>`;
-      const categoriasConProductos = todasCategorias.filter(cat => todosProductos.some(prod => prod.categoria_id === cat.id));
-      categoriasConProductos.forEach(cat => { html += `<button class="btn-categoria" onclick="filtrarPorCategoria('${cat.id}', this)">${cat.nombre}</button>`; });
-      container.innerHTML = html;
-    }
-
-    function filtrarPorCategoria(catId, el) {
-      categoriaActiva = catId;
-      document.querySelectorAll('.btn-categoria').forEach(btn => btn.classList.remove('active'));
-      el.classList.add('active');
-      if (catId === 'combos') cargarCombosPublicos(); else renderProductos();
-    }
-
-    function renderProductos() {
-      const container = document.getElementById('productos-container');
-      let prods = categoriaActiva === 'todas' ? todosProductos : todosProductos.filter(p => p.categoria_id === categoriaActiva);
-      if (prods.length === 0) { container.innerHTML = '<p class="text-muted">No hay productos en esta categoría.</p>'; return; }
-      container.innerHTML = prods.map(p => `
-        <div class="col"><div class="card card-producto h-100"><div class="producto-media">${p.foto_url ? `<img src="${p.foto_url}" class="card-img-top" alt="${p.nombre}">` : `<div class="producto-sin-foto"><i class="bi bi-image"></i></div>`}<button class="btn-add-flotante" onclick="agregarAlCarrito('${p.id}')" ${horarioAbierto ? '' : 'disabled'} aria-label="Añadir ${p.nombre}"><i class="bi bi-plus-lg"></i></button></div><div class="card-body"><h5 class="card-title">${p.nombre}</h5><p class="card-text small text-muted">${p.descripcion || ''}</p><span class="precio-pill">${parseFloat(p.precio).toFixed(2)} CUP</span></div></div></div>`).join('');
-    }
-
-    async function cargarCombosPublicos() {
-      const container = document.getElementById('productos-container');
-      container.innerHTML = '<div class="col"><div class="skeleton skeleton-card"></div></div><div class="col"><div class="skeleton skeleton-card"></div></div><div class="col"><div class="skeleton skeleton-card"></div></div>';
-      const { data: combos, error } = await supabaseClient.from('combos').select('*').eq('activo', true).order('nombre');
-      if (error || !combos || combos.length === 0) { container.innerHTML = '<p class="text-muted">No hay combos disponibles.</p>'; return; }
-      let html = '';
-      for (const combo of combos) {
-        const { data: items } = await supabaseClient.from('combo_items').select('*, productos(nombre, precio)').eq('combo_id', combo.id);
-        const totalOriginal = (items || []).reduce((s, i) => s + (parseFloat(i.productos.precio) * i.cantidad), 0);
-        let precioFinal = totalOriginal;
-        if (combo.tipo_descuento === 'porcentaje') precioFinal = totalOriginal * (1 - combo.valor_descuento / 100);
-        else if (combo.tipo_descuento === 'fijo') precioFinal = parseFloat(combo.valor_descuento);
-        const listaProductos = (items || []).map(i => `${i.cantidad}x ${i.productos.nombre}`).join(', ');
-        html += `<div class="col"><div class="card card-producto h-100"><div class="producto-media"><div class="producto-sin-foto"><i class="bi bi-star-fill"></i></div><span class="badge-oferta">${combo.tipo_descuento === 'porcentaje' ? '-' + combo.valor_descuento + '%' : 'Oferta'}</span><button class="btn-add-flotante" onclick="agregarComboAlCarrito('${combo.id}')" ${horarioAbierto ? '' : 'disabled'}><i class="bi bi-plus-lg"></i></button></div><div class="card-body"><h5 class="card-title">${combo.nombre}</h5><p class="card-text small text-muted">${listaProductos}</p><div class="d-flex align-items-center gap-2"><s class="text-muted small">${totalOriginal.toFixed(2)} CUP</s><span class="precio-pill">${precioFinal.toFixed(2)} CUP</span></div></div></div></div>`;
-      }
-      container.innerHTML = html;
-    }
-
-    async function verificarHorario() {
-      const ahora = new Date(); const diaSemana = ahora.getDay(); const horaActual = ahora.getHours() + ahora.getMinutes() / 60;
-      const { data } = await supabaseClient.from('horarios').select('abierto, hora_apertura, hora_cierre').eq('dia_semana', diaSemana).single();
-      let textoHorario = 'Cerrado hoy.';
-      if (data) {
-        if (data.abierto) { horarioAbierto = true; textoHorario = ''; }
-        else if (data.hora_apertura && data.hora_cierre && data.hora_apertura !== data.hora_cierre) {
-          const [hA, mA] = data.hora_apertura.split(':').map(Number); const [hC, mC] = data.hora_cierre.split(':').map(Number);
-          const apertura = hA + mA / 60; const cierre = hC + mC / 60;
-          horarioAbierto = horaActual >= apertura && horaActual < cierre;
-          if (!horarioAbierto) textoHorario = `Los pedidos en línea están disponibles de ${data.hora_apertura.slice(0,5)} a ${data.hora_cierre.slice(0,5)}.`;
-        } else { horarioAbierto = false; textoHorario = 'Cerrado hoy.'; }
-      } else { horarioAbierto = false; textoHorario = 'Cerrado hoy.'; }
-      document.getElementById('horario-aviso').classList.toggle('d-none', horarioAbierto);
-      document.getElementById('horario-texto').textContent = textoHorario;
-    }
-
-    function agregarAlCarrito(idProducto) {
-      const producto = todosProductos.find(p => p.id === idProducto); if (!producto) return;
-      const grupo = carrito.find(item => item.id === idProducto && !item.esCombo);
-      if (grupo) grupo.cantidad++;
-      else carrito.push({ id: producto.id, nombre: producto.nombre, precio: parseFloat(producto.precio), foto: producto.foto_url, permiteExtras: producto.permite_extras, cantidad: 1, extras: '', esCombo: false });
-      actualizarCarrito();
-    }
-
-    async function agregarComboAlCarrito(comboId) {
-      const { data: combo } = await supabaseClient.from('combos').select('*').eq('id', comboId).single(); if (!combo) return;
-      const { data: items } = await supabaseClient.from('combo_items').select('*, productos(nombre, precio)').eq('combo_id', comboId);
-      const totalOriginal = (items || []).reduce((s, i) => s + (parseFloat(i.productos.precio) * i.cantidad), 0);
-      let precioFinal = totalOriginal;
-      if (combo.tipo_descuento === 'porcentaje') precioFinal = totalOriginal * (1 - combo.valor_descuento / 100);
-      else if (combo.tipo_descuento === 'fijo') precioFinal = parseFloat(combo.valor_descuento);
-      const comboItem = { id: combo.id, nombre: combo.nombre, precio: precioFinal, permiteExtras: false, cantidad: 1, extras: '', esCombo: true };
-      const grupo = carrito.find(item => item.id === combo.id && item.esCombo);
-      if (grupo) grupo.cantidad++; else carrito.push(comboItem);
-      actualizarCarrito();
-    }
-
-    function cambiarCantidad(index, delta) {
-      if (index < 0 || index >= carrito.length) return;
-      carrito[index].cantidad += delta;
-      if (carrito[index].cantidad <= 0) carrito.splice(index, 1);
-      actualizarCarrito();
-    }
-
-    function actualizarCarrito() {
-      const lista = document.getElementById('carrito-lista');
-      const totalSpan = document.getElementById('total-pedido');
-      const countBadge = document.getElementById('cart-count');
-      const btnCheckout = document.getElementById('btn-checkout');
-
-      lista.innerHTML = carrito.map((item, index) => `
-        <div class="list-group-item carrito-item d-flex justify-content-between align-items-start"><div class="w-100"><div class="d-flex justify-content-between align-items-start"><strong>${item.nombre} ${item.esCombo ? '<small class="text-warning">(Combo)</small>' : ''}</strong><span class="fw-bold">${(item.precio * item.cantidad).toFixed(2)} CUP</span></div><div class="d-flex justify-content-between align-items-center mt-2"><div class="stepper"><button type="button" onclick="cambiarCantidad(${index}, -1)"><i class="bi bi-dash"></i></button><span>${item.cantidad}</span><button type="button" onclick="cambiarCantidad(${index}, 1)"><i class="bi bi-plus"></i></button></div><button class="btn btn-sm text-danger" onclick="eliminarDelCarrito(${index})"><i class="bi bi-trash"></i></button></div>${!item.esCombo && item.permiteExtras ? `<input type="text" class="form-control form-control-sm mt-2" placeholder="Instrucciones especiales" value="${item.extras}" oninput="actualizarExtras(${index}, this.value)">` : ''}</div></div>`).join('') || `<div class="carrito-vacio"><i class="bi bi-basket"></i><p class="mt-2 mb-0 fw-semibold">Tu carrito está vacío</p><small>Añade algo rico de la carta 🍔</small></div>`;
-
-      const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-      document.getElementById('subtotal-carrito').textContent = subtotal.toFixed(2);
-
-      const metodoPago = document.getElementById('metodo-pago').value;
-      let recargo = 0;
-      if (metodoPago === 'transferencia' && recargoTransferencia > 0) {
-        recargo = subtotal * (recargoTransferencia / 100);
-        document.getElementById('recargo-aplicado').textContent = recargo.toFixed(2);
-        document.getElementById('recargo-desglose').classList.remove('d-none');
-      } else {
-        document.getElementById('recargo-desglose').classList.add('d-none');
-      }
-
-      const precioEnvio = parseFloat(document.getElementById('reparto-precio').value) || 0;
-      let envio = 0;
-      if (precioEnvio > 0) {
-        envio = precioEnvio;
-        document.getElementById('envio-aplicado').textContent = envio.toFixed(2);
-        document.getElementById('envio-desglose').classList.remove('d-none');
-      } else {
-        document.getElementById('envio-desglose').classList.add('d-none');
-      }
-
-      const total = subtotal + recargo + envio;
-      totalSpan.textContent = total.toFixed(2) + ' CUP';
-
-      const nuevoConteo = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-      if (countBadge.textContent !== String(nuevoConteo)) { countBadge.classList.remove('bump'); void countBadge.offsetWidth; countBadge.classList.add('bump'); }
-      countBadge.textContent = nuevoConteo;
-
-      btnCheckout.disabled = carrito.length === 0 || !document.getElementById('reparto-id').value;
-    }
-
-    function actualizarExtras(index, valor) { if (index >= 0 && index < carrito.length) carrito[index].extras = valor; }
-    function eliminarDelCarrito(index) { carrito.splice(index, 1); actualizarCarrito(); }
-
-    async function confirmarPedido() {
-      const nombre = document.getElementById('nombre').value.trim();
-      const telefono = document.getElementById('telefono').value.trim();
-      const direccion = document.getElementById('direccion').value.trim();
-      const referencia = document.getElementById('referencia').value.trim();
-      const errorDiv = document.getElementById('checkout-error');
-      const errorText = document.getElementById('error-text');
-
-      if (!nombre || !telefono || !direccion) {
-        errorText.textContent = 'Completa los campos obligatorios.';
-        errorDiv.style.display = 'block';
-        return;
-      }
-      errorDiv.style.display = 'none';
-
-      const metodoPago = document.getElementById('metodo-pago').value;
-      const zonaTexto = document.getElementById('reparto-seleccionado-texto')?.textContent || 'Domicilio';
-      const totalPedido = parseFloat(document.getElementById('total-pedido').textContent);
-
-      const { error: errorPedido } = await supabaseClient.from('pedidos').insert([{
-        nombre, telefono, direccion, referencia: referencia || null, metodo_pago: metodoPago,
-        zona: zonaTexto, total: totalPedido,
-        items: carrito.map(item => ({ nombre: item.nombre, precio: item.precio, cantidad: item.cantidad, extras: item.extras || null, esCombo: item.esCombo || false })),
-        estado: 'pendiente'
-      }]);
-
-      if (errorPedido) {
-        errorText.textContent = 'Error al enviar el pedido.';
-        errorDiv.style.display = 'block';
-        return;
-      }
-
-      const productosTexto = carrito.map(item => { const extra = item.extras ? ` (${item.extras})` : ''; return `${item.cantidad}x ${item.nombre}${extra} — ${(item.precio * item.cantidad).toFixed(2)} CUP`; }).join('\n');
-      const mensajeNtfy = `🍔 NUEVO PEDIDO — ComeCome\n👤 ${nombre}\n📞 ${telefono}\n📍 ${direccion}${referencia ? '\n📌 Ref: ' + referencia : ''}\n🛵 Entrega: ${zonaTexto}\n💳 Pago: ${metodoPago}\n────────────────\n${productosTexto}\n────────────────\n💰 TOTAL: ${totalPedido.toFixed(2)} CUP`;
-      fetch(`https://ntfy.sh/${NTFY_TOPIC}`, { method: 'POST', body: mensajeNtfy }).catch(() => {});
-
-      if (datosOffcanvasInstance) datosOffcanvasInstance.hide();
-      setTimeout(() => { const toast = new bootstrap.Toast(document.getElementById('toastPedido')); toast.show(); }, 300);
-      carrito = [];
-      actualizarCarrito();
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
