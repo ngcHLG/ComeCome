@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,10 +25,18 @@
         <img src="pacman-icon.png" alt="ComeCome" style="height: 24px; width: 24px; object-fit: contain; margin-right: 0.8rem;">
         COMECOME
       </a>
-      <button class="btn btn-outline-pacman position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#carritoOffcanvas">
-        <i class="bi bi-cart-fill"></i>
-        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge bg-pacman text-dark">0</span>
-      </button>
+      <div class="d-flex align-items-center gap-2">
+        <!-- Botón de Alternancia de Modo Claro / Oscuro -->
+        <button id="theme-toggle" class="btn btn-outline-pacman" type="button" aria-label="Cambiar Modo">
+          <i id="theme-icon" class="bi bi-sun-fill"></i>
+        </button>
+        
+        <!-- Botón del Carrito -->
+        <button class="btn btn-outline-pacman position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#carritoOffcanvas">
+          <i class="bi bi-cart-fill"></i>
+          <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge">0</span>
+        </button>
+      </div>
     </div>
   </nav>
 
