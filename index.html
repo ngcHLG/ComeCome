@@ -60,6 +60,24 @@
     .btn-amarillo:active { transform: translateY(0); }
     .btn-amarillo:disabled { opacity: 0.45; box-shadow: none; transform: none; }
 
+    /* Botón de cancelar con borde amarillo */
+    .btn-outline-amarillo {
+      color: var(--amarillo-oscuro);
+      border: 2px solid var(--amarillo);
+      background: transparent;
+      font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+      border-radius: 2rem;
+      transition: all 0.15s ease;
+    }
+    .btn-outline-amarillo:hover {
+      background: var(--amarillo);
+      color: var(--negro);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+    .btn-outline-amarillo:active { transform: translateY(0); }
+
     /* Tarjetas de producto */
     .card-producto {
       position: relative;
@@ -380,9 +398,10 @@
           <textarea class="form-control" id="referencia" rows="1" placeholder="Ej: detrás de la gasolinera..."></textarea>
         </div>
       </form>
-      <div class="d-flex gap-2 mt-3">
-        <button type="button" class="btn btn-secondary w-50" data-bs-dismiss="offcanvas">Cancelar</button>
-        <button type="button" class="btn btn-amarillo w-50" id="confirmar-pedido"><i class="bi bi-check-lg"></i> Confirmar pedido</button>
+      <!-- Botones mejorados -->
+      <div class="d-flex gap-3 mt-3">
+        <button type="button" class="btn btn-outline-amarillo flex-fill py-2" data-bs-dismiss="offcanvas">Cancelar</button>
+        <button type="button" class="btn btn-amarillo flex-fill py-2" id="confirmar-pedido"><i class="bi bi-check-lg me-1"></i> Confirmar</button>
       </div>
     </div>
   </div>
@@ -466,7 +485,7 @@
         if (datosOffcanvasInstance) datosOffcanvasInstance.show();
       });
 
-      // Evento del botón "Confirmar pedido" dentro del offcanvas de datos
+      // Evento del botón "Confirmar" dentro del offcanvas de datos
       document.getElementById('confirmar-pedido').addEventListener('click', async () => {
         await confirmarPedido();
       });
