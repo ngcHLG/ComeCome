@@ -1,163 +1,260 @@
+/* Fuentes y Variables Base (Modo Oscuro por Defecto) */
 :root {
-  --pacman-yellow: #FFFF00;
-  --maze-blue: #1919A6;
-  --bg-black: #000000;
-  --ghost-red: #FF0000;
-  --text-white: #FFFFFF;
+  --bg-main: #000000;
+  --bg-card: #0c0c0c;
+  --text-main: #ffffff;
+  --text-muted: #b5b5b5; /* Gris de alto contraste para modo oscuro */
+  --pacman-color: #ffe700;
+  --maze-color: #212529;
+  --border-arcade: #ffe700;
 }
 
-* { 
-  -webkit-tap-highlight-color: transparent; 
-  border-radius: 0 !important; /* Elimina cualquier borde redondeado para el look retro */
+/* Modo Claro (Inspirado en Flyers de Arcade Clásicos) */
+[data-theme="light"] {
+  --bg-main: #f4f6f9;
+  --bg-card: #ffffff;
+  --text-main: #1a1a1a;
+  --text-muted: #555555; /* Gris oscuro legible en fondo claro */
+  --pacman-color: #d4b200; /* Amarillo con más contraste para fondo claro */
+  --maze-color: #e9ecef;
+  --border-arcade: #1a1a1a;
 }
 
 body {
-  background-color: var(--bg-black);
-  font-family: 'Press Start 2P', cursive;
-  color: var(--text-white);
-  font-size: 10px; /* Tamaño base reducido debido a la proporción de la fuente retro */
-  line-height: 1.6;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Press Start 2P', monospace;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-::selection { background: var(--pacman-yellow); color: var(--bg-black); }
-
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 2px solid var(--pacman-yellow);
-  outline-offset: 2px;
+/* Forzar cambios de tema sobre utilidades de Bootstrap */
+[data-theme="light"] .bg-black,
+[data-theme="light"] .bg-dark {
+  background-color: var(--bg-main) !important;
 }
 
-/* Navbar y estructura base */
-.navbar { background-color: var(--bg-black) !important; border-bottom: 3px solid var(--maze-blue); }
-.navbar-brand { color: var(--pacman-yellow) !important; font-size: 1.2rem; }
-.footer { background-color: var(--bg-black); border-top: 3px solid var(--maze-blue); }
+[data-theme="light"] .text-white {
+  color: var(--text-main) !important;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--bg-card) !important;
+  border-bottom: 3px solid var(--pacman-color);
+}
+
+.navbar-brand {
+  font-size: 1.1rem;
+  color: var(--pacman-color) !important;
+}
 
 /* Botones Arcade */
-.btn-pacman {
-  background: var(--pacman-yellow);
-  color: var(--bg-black);
-  border: 2px solid var(--pacman-yellow);
-  font-family: 'Press Start 2P', cursive;
-  font-size: 10px;
-  padding: 0.8rem;
-}
-.btn-pacman:hover { background: var(--bg-black); color: var(--pacman-yellow); }
-.btn-pacman:disabled { background: #555; color: #222; border-color: #555; opacity: 1; }
-
 .btn-outline-pacman {
+  color: var(--pacman-color);
+  border: 2px solid var(--pacman-color);
   background: transparent;
-  color: var(--pacman-yellow);
-  border: 2px solid var(--pacman-yellow);
-  font-family: 'Press Start 2P', cursive;
-  font-size: 10px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.8rem;
 }
-.btn-outline-pacman:hover { background: var(--pacman-yellow); color: var(--bg-black); }
-
-/* Cartas de producto (Muros de laberinto) */
-.card-producto {
-  background: var(--bg-black);
-  border: 3px solid var(--maze-blue);
-  color: var(--text-white);
-  transition: transform 0.1s;
-}
-.card-producto:hover { transform: scale(1.02); border-color: var(--pacman-yellow); }
-
-.producto-media img, .producto-sin-foto {
-  width: 100%; aspect-ratio: 4/3; object-fit: cover;
-  border-bottom: 3px solid var(--maze-blue);
-}
-.producto-sin-foto {
-  background-color: #111; color: var(--pacman-yellow);
-  display: flex; align-items: center; justify-content: center; font-size: 2rem;
+.btn-outline-pacman:hover, .btn-outline-pacman:focus {
+  background-color: var(--pacman-color);
+  color: #000000 !important;
 }
 
-.card-body { padding: 1.2rem; }
-.card-title { color: var(--pacman-yellow); font-size: 12px; line-height: 1.4; margin-bottom: 0.8rem;}
-.card-text { font-size: 9px; color: #aaa; margin-bottom: 1rem; }
-
-.precio-pill {
-  color: var(--text-white);
-  border: 2px solid var(--ghost-red);
-  padding: 0.4rem 0.6rem;
-  display: inline-block;
-  font-size: 10px;
+.btn-pacman {
+  background-color: var(--pacman-color);
+  color: #000000;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.9rem;
+  border: none;
+  image-rendering: pixelated;
+}
+.btn-pacman:hover:not(:disabled) {
+  background-color: #ffffff;
+  color: #000000;
 }
 
-.badge-oferta {
-  position: absolute; top: 0; left: 0; z-index: 2;
-  background: var(--ghost-red); color: var(--text-white);
-  padding: 0.4rem; font-size: 8px; border: 2px solid var(--bg-black);
+/* ¡REPARACIÓN DEL CONTADOR DEL CARRITO! */
+#cart-count {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  padding: 4px 6px;
+  background-color: var(--pacman-color) !important;
+  color: #000000 !important;
+  border: 1px solid #000000;
+  box-shadow: 0 0 8px var(--pacman-color);
+  font-weight: bold;
 }
-
-.btn-add-flotante {
-  position: absolute; right: 10px; bottom: 10px; z-index: 3;
-  background: var(--pacman-yellow); color: var(--bg-black);
-  border: 2px solid var(--bg-black);
-  width: 35px; height: 35px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; cursor: pointer;
-}
-.btn-add-flotante:hover { background: var(--bg-black); color: var(--pacman-yellow); border-color: var(--pacman-yellow); }
 
 /* Categorías Nav */
 .categorias-nav {
-  background-color: var(--bg-black);
-  border-bottom: 2px solid var(--maze-blue);
-  padding: 0.5rem 0; position: sticky; top: 56px; z-index: 1020;
-  overflow-x: auto; white-space: nowrap;
+  background-color: var(--maze-color);
+  padding: 10px 0;
+  white-space: nowrap;
+  overflow-x: auto;
+  border-bottom: 2px dashed var(--pacman-color);
 }
-.categorias-nav::-webkit-scrollbar { display: none; }
 .btn-categoria {
-  background: transparent; color: #777; border: none;
-  font-family: 'Press Start 2P', cursive; font-size: 10px;
-  padding: 0.5rem 1rem; text-decoration: none;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  margin-right: 15px;
+  font-family: 'Press Start 2P', monospace;
 }
-.btn-categoria:hover { color: var(--text-white); }
-.btn-categoria.active { color: var(--pacman-yellow); }
+.btn-categoria.active {
+  color: var(--pacman-color);
+  text-decoration: underline;
+}
 
-/* Form Inputs Arcade */
+/* Alertas y avisos */
+.alert-pacman {
+  background-color: #111;
+  color: var(--pacman-color);
+  border: 2px solid var(--pacman-color);
+  font-size: 0.7rem;
+}
+
+/* Tarjetas de Producto */
+.card-producto {
+  background-color: var(--bg-card);
+  border: 3px solid var(--border-arcade);
+  border-radius: 0;
+  transition: transform 0.2s;
+}
+.card-producto:hover {
+  transform: scale(1.02);
+}
+.card-producto .card-title {
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+.card-producto .card-text {
+  font-size: 0.65rem;
+  color: var(--text-muted) !important;
+  line-height: 1.4;
+}
+.precio-pill {
+  font-size: 0.75rem;
+  color: var(--pacman-color);
+  display: inline-block;
+  margin-top: 10px;
+}
+
+/* Textos e inputs mutados */
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Imágenes de producto */
+.producto-media {
+  background-color: #111;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 3px solid var(--border-arcade);
+}
+.producto-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.producto-sin-foto {
+  font-size: 2.5rem;
+  color: var(--text-muted);
+}
+
+/* Botón flotante añadir */
+.btn-add-flotante {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--pacman-color);
+  color: #000000;
+  border: 2px solid #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+/* Estilo de laberinto para los páneles laterales */
+.border-left-maze { border-left: 4px solid var(--pacman-color) !important; }
+.border-bottom-maze { border-bottom: 4px solid var(--pacman-color) !important; }
+.border-top-maze { border-top: 4px dashed var(--pacman-color) !important; }
+
+.offcanvas {
+  background-color: var(--bg-main) !important;
+  color: var(--text-main);
+}
+
+/* Elementos del carrito */
+.carrito-item {
+  background-color: var(--bg-card) !important;
+  border: 2px solid var(--border-arcade) !important;
+  margin-bottom: 8px;
+  border-radius: 0 !important;
+}
+
+/* Inputs de Texto estilo Arcade */
 .input-arcade, .select-arcade {
-  background-color: #111; color: var(--pacman-yellow);
-  border: 2px solid var(--maze-blue);
-  font-family: 'Press Start 2P', cursive;
-  font-size: 10px; padding: 0.8rem;
+  background-color: var(--bg-card) !important;
+  border: 2px solid var(--border-arcade) !important;
+  color: var(--text-main) !important;
+  border-radius: 0 !important;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
 }
 .input-arcade:focus, .select-arcade:focus {
-  background-color: #000; color: var(--pacman-yellow);
-  border-color: var(--pacman-yellow); box-shadow: none;
+  border-color: var(--pacman-color) !important;
+  box-shadow: none;
 }
 
-/* Offcanvas & Carrito */
-.border-left-maze { border-left: 3px solid var(--maze-blue); }
-.border-bottom-maze { border-bottom: 3px solid var(--maze-blue); }
-.border-top-maze { border-top: 3px solid var(--maze-blue); }
-.border-pacman { border: 2px solid var(--pacman-yellow) !important; }
-
-.carrito-item {
-  background: transparent; border: 2px dashed var(--maze-blue) !important;
-  color: var(--text-white); padding: 1rem; margin-bottom: 0.5rem;
-}
-.carrito-item strong { color: var(--pacman-yellow); font-size: 10px; display: block; margin-bottom: 0.5rem;}
+/* Stepper de cantidad */
 .stepper button {
-  background: var(--bg-black); color: var(--pacman-yellow);
-  border: 2px solid var(--maze-blue); width: 25px; height: 25px;
+  background-color: var(--pacman-color);
+  color: #000000;
+  border: none;
+  padding: 2px 8px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
 }
-.stepper button:hover { background: var(--pacman-yellow); color: var(--bg-black); }
 
-/* Reparto Autocomplete */
+/* Autocompletado de Reparto */
+.reparto-autocomplete { position: relative; }
 .reparto-sugerencias {
-  position: absolute; top: 100%; left: 0; right: 0; z-index: 10;
-  background: var(--bg-black); max-height: 150px; overflow-y: auto; display: none;
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  background-color: var(--bg-card);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  border: 2px solid var(--pacman-color);
 }
 .reparto-sugerencias.show { display: block; }
-.reparto-opcion { padding: 0.8rem; cursor: pointer; border-bottom: 2px solid var(--maze-blue); font-size: 9px;}
-.reparto-opcion:hover { background: var(--pacman-yellow); color: var(--bg-black); }
+.reparto-opcion {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 0.65rem;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--maze-color);
+}
+.reparto-opcion:hover {
+  background-color: var(--pacman-color);
+  color: #000000;
+}
 
-/* Alertas y Utilidades */
-.alert-pacman { background-color: var(--ghost-red); color: var(--text-white); border: none; font-size: 9px; }
-.icono-titulo { color: var(--pacman-yellow); font-size: 1.5rem; }
-.footer-icon-link { color: var(--maze-blue); font-size: 1.5rem; margin: 0 0.5rem; text-decoration: none; }
-.footer-icon-link:hover { color: var(--pacman-yellow); }
-
-.skeleton { background: #111; animation: none; }
-.skeleton-card { height: 200px; border: 3px solid var(--maze-blue); }
-.skeleton-chip { height: 20px; width: 80px; display: inline-block; margin-right: 0.5rem; }
+/* Skeletons */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--maze-color) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: loadingArcade 1.5s infinite;
+}
+@keyframes loadingArcade { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
