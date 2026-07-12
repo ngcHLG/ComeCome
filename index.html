@@ -352,29 +352,37 @@
     </div>
   </div>
 
-  <!-- Modal checkout -->
-  <div class="modal fade" id="checkoutModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header bg-dark text-warning">
-          <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Datos de entrega</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+  <!-- NUEVO Offcanvas Datos de entrega (reemplaza al modal) -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="datosOffcanvas">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title"><i class="bi bi-pencil-square"></i> Datos de entrega</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div id="checkout-error" class="alert alert-danger py-2 error-message" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> <span id="error-text"></span>
+      </div>
+      <form id="checkout-form">
+        <div class="mb-3">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-control" id="nombre" required>
         </div>
-        <div class="modal-body">
-          <div id="checkout-error" class="alert alert-danger py-2 error-message" role="alert">
-            <i class="bi bi-exclamation-triangle"></i> <span id="error-text"></span>
-          </div>
-          <form id="checkout-form">
-            <div class="mb-3"><label class="form-label">Nombre</label><input type="text" class="form-control" id="nombre" required></div>
-            <div class="mb-3"><label class="form-label">Teléfono</label><input type="tel" class="form-control" id="telefono" required></div>
-            <div class="mb-3"><label class="form-label">Dirección completa</label><textarea class="form-control" id="direccion" rows="2" required></textarea></div>
-            <div class="mb-3"><label class="form-label">Punto de referencia <small class="text-muted">(opcional)</small></label><textarea class="form-control" id="referencia" rows="1" placeholder="Ej: detrás de la gasolinera..."></textarea></div>
-          </form>
+        <div class="mb-3">
+          <label class="form-label">Teléfono</label>
+          <input type="tel" class="form-control" id="telefono" required>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-amarillo" id="confirmar-pedido"><i class="bi bi-check-lg"></i> Confirmar pedido</button>
+        <div class="mb-3">
+          <label class="form-label">Dirección completa</label>
+          <textarea class="form-control" id="direccion" rows="2" required></textarea>
         </div>
+        <div class="mb-3">
+          <label class="form-label">Punto de referencia <small class="text-muted">(opcional)</small></label>
+          <textarea class="form-control" id="referencia" rows="1" placeholder="Ej: detrás de la gasolinera..."></textarea>
+        </div>
+      </form>
+      <div class="d-flex gap-2 mt-3">
+        <button type="button" class="btn btn-secondary w-50" data-bs-dismiss="offcanvas">Cancelar</button>
+        <button type="button" class="btn btn-amarillo w-50" id="confirmar-pedido"><i class="bi bi-check-lg"></i> Confirmar pedido</button>
       </div>
     </div>
   </div>
@@ -398,14 +406,20 @@
     let hayCombosActivos = false;
     let categoriaActiva = 'todas';
     let carrito = [];
-    let checkoutModalInstance = null;
     let horarioAbierto = true;
     let recargoTransferencia = 0;
     let repartosDisponibles = [];
 
+    // Instancias de los offcanvas
+    let carritoOffcanvasInstance = null;
+    let datosOffcanvasInstance = null;
+
     document.addEventListener('DOMContentLoaded', async () => {
-      const modalEl = document.getElementById('checkoutModal');
-      if (modalEl) checkoutModalInstance = new bootstrap.Modal(modalEl);
+      // Inicializar los offcanvas
+      const carritoEl = document.getElementById('carritoOffcanvas');
+      const datosEl = document.getElementById('datosOffcanvas');
+      if (carritoEl) carritoOffcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(carritoEl);
+      if (datosEl) datosOffcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(datosEl);
 
       await cargarConfiguracion();
       await cargarCategorias();
@@ -436,8 +450,29 @@
           renderProductos();
         }
       }, 60000);
+
+      // Evento del botón "Realizar pedido"
+      document.getElementById('btn-checkout').addEventListener('click', () => {
+        if (carrito.length === 0) return;
+        // Cerrar el offcanvas del carrito
+        if (carritoOffcanvasInstance) carritoOffcanvasInstance.hide();
+        // Limpiar campos del formulario (opcional)
+        document.getElementById('nombre').value = '';
+        document.getElementById('telefono').value = '';
+        document.getElementById('direccion').value = '';
+        document.getElementById('referencia').value = '';
+        document.getElementById('checkout-error').style.display = 'none';
+        // Abrir el offcanvas de datos
+        if (datosOffcanvasInstance) datosOffcanvasInstance.show();
+      });
+
+      // Evento del botón "Confirmar pedido" dentro del offcanvas de datos
+      document.getElementById('confirmar-pedido').addEventListener('click', async () => {
+        await confirmarPedido();
+      });
     });
 
+    // ----- Funciones existentes (sin cambios) -----
     async function cargarConfiguracion() {
       const { data } = await supabaseClient
         .from('configuracion')
@@ -665,15 +700,20 @@
     function actualizarExtras(index, valor) { if (index >= 0 && index < carrito.length) carrito[index].extras = valor; }
     function eliminarDelCarrito(index) { carrito.splice(index, 1); actualizarCarrito(); }
 
-    document.getElementById('btn-checkout').addEventListener('click', () => { if (carrito.length === 0) return; checkoutModalInstance.show(); });
-
-    document.getElementById('confirmar-pedido').addEventListener('click', async () => {
+    // Función confirmarPedido extraída
+    async function confirmarPedido() {
       const nombre = document.getElementById('nombre').value.trim();
       const telefono = document.getElementById('telefono').value.trim();
       const direccion = document.getElementById('direccion').value.trim();
       const referencia = document.getElementById('referencia').value.trim();
-      const errorDiv = document.getElementById('checkout-error'); const errorText = document.getElementById('error-text');
-      if (!nombre || !telefono || !direccion) { errorText.textContent = 'Completa los campos obligatorios.'; errorDiv.style.display = 'block'; return; }
+      const errorDiv = document.getElementById('checkout-error');
+      const errorText = document.getElementById('error-text');
+
+      if (!nombre || !telefono || !direccion) {
+        errorText.textContent = 'Completa los campos obligatorios.';
+        errorDiv.style.display = 'block';
+        return;
+      }
       errorDiv.style.display = 'none';
 
       const metodoPago = document.getElementById('metodo-pago').value;
@@ -687,17 +727,23 @@
         estado: 'pendiente'
       }]);
 
-      if (errorPedido) { errorText.textContent = 'Error al enviar el pedido.'; errorDiv.style.display = 'block'; return; }
+      if (errorPedido) {
+        errorText.textContent = 'Error al enviar el pedido.';
+        errorDiv.style.display = 'block';
+        return;
+      }
 
       const productosTexto = carrito.map(item => { const extra = item.extras ? ` (${item.extras})` : ''; return `${item.cantidad}x ${item.nombre}${extra} — ${(item.precio * item.cantidad).toFixed(2)} CUP`; }).join('\n');
       const mensajeNtfy = `🍔 NUEVO PEDIDO — ComeCome\n👤 ${nombre}\n📞 ${telefono}\n📍 ${direccion}${referencia ? '\n📌 Ref: ' + referencia : ''}\n🛵 Entrega: ${zonaTexto}\n💳 Pago: ${metodoPago}\n────────────────\n${productosTexto}\n────────────────\n💰 TOTAL: ${totalPedido.toFixed(2)} CUP`;
       fetch(`https://ntfy.sh/${NTFY_TOPIC}`, { method: 'POST', body: mensajeNtfy }).catch(() => {});
 
-      checkoutModalInstance.hide(); const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('carritoOffcanvas')); if (offcanvas) offcanvas.hide();
-      document.getElementById('confirmar-pedido').blur();
+      // Cerrar offcanvas de datos
+      if (datosOffcanvasInstance) datosOffcanvasInstance.hide();
+      // Mostrar toast
       setTimeout(() => { const toast = new bootstrap.Toast(document.getElementById('toastPedido')); toast.show(); }, 300);
-      carrito = []; actualizarCarrito();
-    });
+      carrito = [];
+      actualizarCarrito();
+    }
   </script>
 </body>
 </html>
