@@ -26,7 +26,38 @@ let repartosDisponibles = [];
 let carritoOffcanvasInstance = null;
 let datosOffcanvasInstance = null;
 
+// Inicializar e Inyectar Control de Tema
+function inicializarTema() {
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
+  
+  const temaGuardado = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', temaGuardado);
+  actualizarIconoTema(temaGuardado, themeIcon);
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const temaActual = document.documentElement.getAttribute('data-theme');
+      const nuevoTema = temaActual === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nuevoTema);
+      localStorage.setItem('theme', nuevoTema);
+      actualizarIconoTema(nuevoTema, themeIcon);
+    });
+  }
+}
+
+function actualizarIconoTema(tema, icono) {
+  if (!icono) return;
+  if (tema === 'light') {
+    icono.className = 'bi bi-moon-fill';
+  } else {
+    icono.className = 'bi bi-sun-fill';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  inicializarTema();
+
   const carritoEl = document.getElementById('carritoOffcanvas');
   const datosEl = document.getElementById('datosOffcanvas');
   if (carritoEl) carritoOffcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(carritoEl);
