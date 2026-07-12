@@ -291,9 +291,26 @@ function actualizarCarrito() {
   const countBadge = document.getElementById('cart-count');
   const btnCheckout = document.getElementById('btn-checkout');
 
-  lista.innerHTML = carrito.map((item, index) => `
-    <div class="list-group-item carrito-item"><div class="w-100"><div class="d-flex justify-content-between align-items-start"><strong>${item.nombre} ${item.esCombo ? '<small>(C)</small>' : ''}</strong><span class="text-white">${(item.precio * item.cantidad).toFixed(2)}</span></div><div class="d-flex justify-content-between align-items-center mt-3"><div class="stepper"><button type="button" onclick="cambiarCantidad(${index}, -1)">-</button><span class="text-white mx-2">${item.cantidad}</span><button type="button" onclick="cambiarCantidad(${index}, 1)">+</button></div><button class="btn btn-sm text-danger" onclick="eliminarDelCarrito(${index})"><i class="bi bi-trash-fill"></i></button></div>${!item.esCombo && item.permiteExtras ? `<input type="text" class="form-control form-control-sm mt-3 input-arcade" placeholder="EXTRAS..." value="${item.extras}" oninput="actualizarExtras(${index}, this.value)">` : ''}</div></div>`).join('') || `<div class="text-center py-4"><i class="bi bi-controller fs-1 text-muted"></i><p class="mt-2 mb-0 text-muted">INSERT COIN</p></div>`;
+    lista.innerHTML = carrito.map((item, index) => `
+    <div class="list-group-item carrito-item">
+      <div class="w-100">
+        <div class="d-flex justify-content-between align-items-center">
+          <strong class="text-break me-3">${item.nombre} ${item.esCombo ? '<small>(C)</small>' : ''}</strong>
+          <span class="text-white text-nowrap flex-shrink-0">${(item.precio * item.cantidad).toFixed(2)}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div class="stepper">
+            <button type="button" onclick="cambiarCantidad(${index}, -1)">-</button>
+            <span class="text-white mx-2">${item.cantidad}</span>
+            <button type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
+          </div>
+          <button class="btn btn-sm text-danger" onclick="eliminarDelCarrito(${index})"><i class="bi bi-trash-fill"></i></button>
+        </div>
+        ${!item.esCombo && item.permiteExtras ? `<input type="text" class="form-control form-control-sm mt-3 input-arcade" placeholder="EXTRAS..." value="${item.extras}" oninput="actualizarExtras(${index}, this.value)">` : ''}
+      </div>
+    </div>`).join('') || `<div class="text-center py-4"><i class="bi bi-controller fs-1 text-muted"></i><p class="mt-2 mb-0 text-muted">INSERT COIN</p></div>`;
 
+    
   const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
   document.getElementById('subtotal-carrito').textContent = subtotal.toFixed(2);
 
