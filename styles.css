@@ -1,0 +1,163 @@
+:root {
+  --pacman-yellow: #FFFF00;
+  --maze-blue: #1919A6;
+  --bg-black: #000000;
+  --ghost-red: #FF0000;
+  --text-white: #FFFFFF;
+}
+
+* { 
+  -webkit-tap-highlight-color: transparent; 
+  border-radius: 0 !important; /* Elimina cualquier borde redondeado para el look retro */
+}
+
+body {
+  background-color: var(--bg-black);
+  font-family: 'Press Start 2P', cursive;
+  color: var(--text-white);
+  font-size: 10px; /* Tamaño base reducido debido a la proporción de la fuente retro */
+  line-height: 1.6;
+}
+
+::selection { background: var(--pacman-yellow); color: var(--bg-black); }
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--pacman-yellow);
+  outline-offset: 2px;
+}
+
+/* Navbar y estructura base */
+.navbar { background-color: var(--bg-black) !important; border-bottom: 3px solid var(--maze-blue); }
+.navbar-brand { color: var(--pacman-yellow) !important; font-size: 1.2rem; }
+.footer { background-color: var(--bg-black); border-top: 3px solid var(--maze-blue); }
+
+/* Botones Arcade */
+.btn-pacman {
+  background: var(--pacman-yellow);
+  color: var(--bg-black);
+  border: 2px solid var(--pacman-yellow);
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  padding: 0.8rem;
+}
+.btn-pacman:hover { background: var(--bg-black); color: var(--pacman-yellow); }
+.btn-pacman:disabled { background: #555; color: #222; border-color: #555; opacity: 1; }
+
+.btn-outline-pacman {
+  background: transparent;
+  color: var(--pacman-yellow);
+  border: 2px solid var(--pacman-yellow);
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+}
+.btn-outline-pacman:hover { background: var(--pacman-yellow); color: var(--bg-black); }
+
+/* Cartas de producto (Muros de laberinto) */
+.card-producto {
+  background: var(--bg-black);
+  border: 3px solid var(--maze-blue);
+  color: var(--text-white);
+  transition: transform 0.1s;
+}
+.card-producto:hover { transform: scale(1.02); border-color: var(--pacman-yellow); }
+
+.producto-media img, .producto-sin-foto {
+  width: 100%; aspect-ratio: 4/3; object-fit: cover;
+  border-bottom: 3px solid var(--maze-blue);
+}
+.producto-sin-foto {
+  background-color: #111; color: var(--pacman-yellow);
+  display: flex; align-items: center; justify-content: center; font-size: 2rem;
+}
+
+.card-body { padding: 1.2rem; }
+.card-title { color: var(--pacman-yellow); font-size: 12px; line-height: 1.4; margin-bottom: 0.8rem;}
+.card-text { font-size: 9px; color: #aaa; margin-bottom: 1rem; }
+
+.precio-pill {
+  color: var(--text-white);
+  border: 2px solid var(--ghost-red);
+  padding: 0.4rem 0.6rem;
+  display: inline-block;
+  font-size: 10px;
+}
+
+.badge-oferta {
+  position: absolute; top: 0; left: 0; z-index: 2;
+  background: var(--ghost-red); color: var(--text-white);
+  padding: 0.4rem; font-size: 8px; border: 2px solid var(--bg-black);
+}
+
+.btn-add-flotante {
+  position: absolute; right: 10px; bottom: 10px; z-index: 3;
+  background: var(--pacman-yellow); color: var(--bg-black);
+  border: 2px solid var(--bg-black);
+  width: 35px; height: 35px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; cursor: pointer;
+}
+.btn-add-flotante:hover { background: var(--bg-black); color: var(--pacman-yellow); border-color: var(--pacman-yellow); }
+
+/* Categorías Nav */
+.categorias-nav {
+  background-color: var(--bg-black);
+  border-bottom: 2px solid var(--maze-blue);
+  padding: 0.5rem 0; position: sticky; top: 56px; z-index: 1020;
+  overflow-x: auto; white-space: nowrap;
+}
+.categorias-nav::-webkit-scrollbar { display: none; }
+.btn-categoria {
+  background: transparent; color: #777; border: none;
+  font-family: 'Press Start 2P', cursive; font-size: 10px;
+  padding: 0.5rem 1rem; text-decoration: none;
+}
+.btn-categoria:hover { color: var(--text-white); }
+.btn-categoria.active { color: var(--pacman-yellow); }
+
+/* Form Inputs Arcade */
+.input-arcade, .select-arcade {
+  background-color: #111; color: var(--pacman-yellow);
+  border: 2px solid var(--maze-blue);
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px; padding: 0.8rem;
+}
+.input-arcade:focus, .select-arcade:focus {
+  background-color: #000; color: var(--pacman-yellow);
+  border-color: var(--pacman-yellow); box-shadow: none;
+}
+
+/* Offcanvas & Carrito */
+.border-left-maze { border-left: 3px solid var(--maze-blue); }
+.border-bottom-maze { border-bottom: 3px solid var(--maze-blue); }
+.border-top-maze { border-top: 3px solid var(--maze-blue); }
+.border-pacman { border: 2px solid var(--pacman-yellow) !important; }
+
+.carrito-item {
+  background: transparent; border: 2px dashed var(--maze-blue) !important;
+  color: var(--text-white); padding: 1rem; margin-bottom: 0.5rem;
+}
+.carrito-item strong { color: var(--pacman-yellow); font-size: 10px; display: block; margin-bottom: 0.5rem;}
+.stepper button {
+  background: var(--bg-black); color: var(--pacman-yellow);
+  border: 2px solid var(--maze-blue); width: 25px; height: 25px;
+}
+.stepper button:hover { background: var(--pacman-yellow); color: var(--bg-black); }
+
+/* Reparto Autocomplete */
+.reparto-sugerencias {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 10;
+  background: var(--bg-black); max-height: 150px; overflow-y: auto; display: none;
+}
+.reparto-sugerencias.show { display: block; }
+.reparto-opcion { padding: 0.8rem; cursor: pointer; border-bottom: 2px solid var(--maze-blue); font-size: 9px;}
+.reparto-opcion:hover { background: var(--pacman-yellow); color: var(--bg-black); }
+
+/* Alertas y Utilidades */
+.alert-pacman { background-color: var(--ghost-red); color: var(--text-white); border: none; font-size: 9px; }
+.icono-titulo { color: var(--pacman-yellow); font-size: 1.5rem; }
+.footer-icon-link { color: var(--maze-blue); font-size: 1.5rem; margin: 0 0.5rem; text-decoration: none; }
+.footer-icon-link:hover { color: var(--pacman-yellow); }
+
+.skeleton { background: #111; animation: none; }
+.skeleton-card { height: 200px; border: 3px solid var(--maze-blue); }
+.skeleton-chip { height: 20px; width: 80px; display: inline-block; margin-right: 0.5rem; }
