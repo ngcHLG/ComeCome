@@ -1,13 +1,11 @@
-const CACHE_NAME = 'comecome-v1';
+const CACHE_NAME = 'comecome-v2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/script.js',
-  '/pacman-icon.png',
-  '/manifest.json'
-  // Si quieres cachear también páginas de admin (opcional), añádelas aquí
-  // '/admin/categorias.html', etc.
+  './',                // index.html
+  './index.html',
+  './styles.css',
+  './script.js',
+  './pacman-icon.png',
+  './manifest.json'
 ];
 
 // Instalación: guarda los recursos en la caché
