@@ -285,13 +285,43 @@ function cambiarCantidad(index, delta) {
   actualizarCarrito();
 }
 
+// ═══════════════════════════════════════════════
+//   FUNCIÓN PRINCIPAL: actualizarCarrito (MODIFICADA)
+// ═══════════════════════════════════════════════
 function actualizarCarrito() {
   const lista = document.getElementById('carrito-lista');
   const totalSpan = document.getElementById('total-pedido');
   const countBadge = document.getElementById('cart-count');
   const btnCheckout = document.getElementById('btn-checkout');
 
-    lista.innerHTML = carrito.map((item, index) => `
+  // ── Detectar si el carrito está compuesto ÚNICAMENTE por combos ──
+  const todosSonCombos = carrito.length > 0 && carrito.every(item => item.esCombo);
+
+  // Localizar la sección de reparto (label "REPARTO" + input + sugerencias)
+  const repartoLabel = Array.from(
+    document.querySelectorAll('#carritoOffcanvas .form-label')
+  ).find(l => l.textContent.trim() === 'REPARTO');
+  const repartoSection = repartoLabel?.closest('.mb-3');
+
+  if (todosSonCombos) {
+    // Ocultar completamente el bloque de reparto
+    if (repartoSection) repartoSection.style.display = 'none';
+    // Limpiar cualquier selección previa de reparto
+    document.getElementById('reparto-id').value = '';
+    document.getElementById('reparto-precio').value = '';
+    document.getElementById('reparto-input').value = '';
+    document.getElementById('reparto-seleccionado').classList.add('d-none');
+    document.getElementById('reparto-input').classList.remove('d-none');
+    document.getElementById('reparto-sugerencias').classList.remove('show');
+    // Asegurar que el desglose de envío no se muestre
+    document.getElementById('envio-desglose').classList.add('d-none');
+  } else {
+    // Mostrar normalmente la sección de reparto
+    if (repartoSection) repartoSection.style.display = '';
+  }
+
+  // ── Renderizar los items del carrito ──
+  lista.innerHTML = carrito.map((item, index) => `
     <div class="list-group-item carrito-item">
       <div class="w-100">
         <div class="d-flex justify-content-between align-items-center">
@@ -310,7 +340,7 @@ function actualizarCarrito() {
       </div>
     </div>`).join('') || `<div class="text-center py-4"><i class="bi bi-controller fs-1 text-muted"></i><p class="mt-2 mb-0 text-muted">INSERT COIN</p></div>`;
 
-    
+  // ── Cálculos de subtotal, recargo y envío ──
   const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
   document.getElementById('subtotal-carrito').textContent = subtotal.toFixed(2);
 
@@ -324,14 +354,17 @@ function actualizarCarrito() {
     document.getElementById('recargo-desglose').classList.add('d-none');
   }
 
-  const precioEnvio = parseFloat(document.getElementById('reparto-precio').value) || 0;
+  // El envío solo se aplica si NO son todos combos y hay reparto seleccionado
   let envio = 0;
-  if (precioEnvio > 0) {
-    envio = precioEnvio;
-    document.getElementById('envio-aplicado').textContent = envio.toFixed(2);
-    document.getElementById('envio-desglose').classList.remove('d-none');
-  } else {
-    document.getElementById('envio-desglose').classList.add('d-none');
+  if (!todosSonCombos) {
+    const precioEnvio = parseFloat(document.getElementById('reparto-precio').value) || 0;
+    if (precioEnvio > 0) {
+      envio = precioEnvio;
+      document.getElementById('envio-aplicado').textContent = envio.toFixed(2);
+      document.getElementById('envio-desglose').classList.remove('d-none');
+    } else {
+      document.getElementById('envio-desglose').classList.add('d-none');
+    }
   }
 
   const total = subtotal + recargo + envio;
@@ -340,7 +373,12 @@ function actualizarCarrito() {
   const nuevoConteo = carrito.reduce((sum, item) => sum + item.cantidad, 0);
   countBadge.textContent = nuevoConteo;
 
-  btnCheckout.disabled = carrito.length === 0 || !document.getElementById('reparto-id').value;
+  // Habilitar o deshabilitar el botón de pedido
+  if (todosSonCombos) {
+    btnCheckout.disabled = carrito.length === 0;
+  } else {
+    btnCheckout.disabled = carrito.length === 0 || !document.getElementById('reparto-id').value;
+  }
 }
 
 function actualizarExtras(index, valor) { if (index >= 0 && index < carrito.length) carrito[index].extras = valor; }
